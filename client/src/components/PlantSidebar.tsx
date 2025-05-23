@@ -79,10 +79,20 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     onFilterChange('difficultyLevels', updatedLevels);
   };
   
+  const handleGrowZoneChange = (value: string) => {
+    const updatedZones = selectedGrowZones.includes(value)
+      ? selectedGrowZones.filter(zone => zone !== value)
+      : [...selectedGrowZones, value];
+    
+    setSelectedGrowZones(updatedZones);
+    onFilterChange('growZones', updatedZones);
+  };
+  
   const handleClearFilters = () => {
     setSelectedLightLevels([]);
     setSelectedWaterNeeds([]);
     setSelectedDifficultyLevels([]);
+    setSelectedGrowZones([]);
     onClearFilters();
   };
   
@@ -206,6 +216,47 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
                       </span>
                     </span>
                     <span className="text-sm text-gray-700">{level.label}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* USDA Grow Zone Filter */}
+          <div className="mb-6">
+            <h3 className="font-medium text-sm text-gray-700 mb-3">USDA Grow Zone</h3>
+            <p className="text-xs text-gray-500 mb-3">Select your hardiness zone</p>
+            <div className="grid grid-cols-2 gap-2">
+              {growZones.map((zone) => (
+                <div key={zone.id} className="flex items-center">
+                  <input
+                    id={zone.id}
+                    type="checkbox"
+                    className="filter-checkbox h-4 w-4 border-gray-300 rounded text-primary focus:ring-primary hidden"
+                    checked={selectedGrowZones.includes(zone.value)}
+                    onChange={() => handleGrowZoneChange(zone.value)}
+                  />
+                  <label htmlFor={zone.id} className="flex items-center cursor-pointer">
+                    <span 
+                      className={`h-5 w-5 border border-gray-300 rounded flex items-center justify-center mr-2 relative ${
+                        selectedGrowZones.includes(zone.value) ? 'bg-primary border-primary' : ''
+                      }`}
+                    >
+                      <span 
+                        className={`absolute inset-0 flex items-center justify-center ${
+                          selectedGrowZones.includes(zone.value) ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path 
+                            fillRule="evenodd" 
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                            clipRule="evenodd" 
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span className="text-sm text-gray-700">{zone.label}</span>
                   </label>
                 </div>
               ))}
