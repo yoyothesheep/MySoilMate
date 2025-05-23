@@ -25,7 +25,7 @@ export default function Home() {
   // Fetch plants based on current filter
   const { data: plants = [], isLoading } = useQuery({
     queryKey: [`/api/plants?${buildQueryString(filter)}`],
-    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
   const handleSearch = (search: string) => {
