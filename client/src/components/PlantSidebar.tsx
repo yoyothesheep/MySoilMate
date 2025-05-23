@@ -9,7 +9,7 @@ interface FilterOption {
 
 interface PlantSidebarProps {
   onFilterChange: (
-    filterType: 'lightLevels' | 'waterNeeds' | 'difficultyLevels', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'difficultyLevels' | 'growZones', 
     values: string[]
   ) => void;
   onClearFilters: () => void;
@@ -35,10 +35,22 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     { id: 'difficulty-expert', label: 'Expert', value: 'expert' }
   ];
   
+  const growZones: FilterOption[] = [
+    { id: 'zone-3', label: 'Zone 3', value: '3' },
+    { id: 'zone-4', label: 'Zone 4', value: '4' },
+    { id: 'zone-5', label: 'Zone 5', value: '5' },
+    { id: 'zone-6', label: 'Zone 6', value: '6' },
+    { id: 'zone-7', label: 'Zone 7', value: '7' },
+    { id: 'zone-8', label: 'Zone 8', value: '8' },
+    { id: 'zone-9', label: 'Zone 9', value: '9' },
+    { id: 'zone-10', label: 'Zone 10', value: '10' }
+  ];
+  
   // State for selected filters
   const [selectedLightLevels, setSelectedLightLevels] = useState<string[]>([]);
   const [selectedWaterNeeds, setSelectedWaterNeeds] = useState<string[]>([]);
   const [selectedDifficultyLevels, setSelectedDifficultyLevels] = useState<string[]>([]);
+  const [selectedGrowZones, setSelectedGrowZones] = useState<string[]>([]);
   
   const handleLightLevelChange = (value: string) => {
     const updatedLevels = selectedLightLevels.includes(value)
