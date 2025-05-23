@@ -63,7 +63,7 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
         </div>
         <Button
           variant="outline"
-          className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-primary text-sm font-medium rounded-md text-primary hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          className="mt-4 mb-6 w-full flex items-center justify-center px-4 py-2 border border-primary text-sm font-medium rounded-md text-primary hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           onClick={onClick}
         >
           View Details
