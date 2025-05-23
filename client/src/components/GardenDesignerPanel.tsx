@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
+import { Upload, Image as ImageIcon, X } from "lucide-react";
 
 interface PlantPosition {
   id: number;
@@ -31,7 +32,9 @@ export function GardenDesignerPanel({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const gardenRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize garden with plants
   useEffect(() => {
@@ -135,6 +138,31 @@ export function GardenDesignerPanel({
     setGardenPlants([]);
   };
 
+  // Function to handle background image upload
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBackgroundImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Function to remove background image
+  const removeBackgroundImage = () => {
+    setBackgroundImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Function to trigger file input
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -164,6 +192,26 @@ export function GardenDesignerPanel({
                 <Button 
                   variant="outline" 
                   size="sm" 
+                  onClick={triggerFileInput}
+                  className="text-xs flex items-center"
+                >
+                  <Upload className="h-4 w-4 mr-1" />
+                  Upload Background
+                </Button>
+                {backgroundImage && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={removeBackgroundImage}
+                    className="text-xs flex items-center text-red-600 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Remove Background
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
                   onClick={clearGarden}
                   className="text-xs flex items-center"
                 >
@@ -176,12 +224,16 @@ export function GardenDesignerPanel({
             </div>
             
             <div 
-              className="garden-area relative"
+              className="garden-area relative overflow-hidden"
               style={{
                 height: `${canvasSize.height}px`,
                 width: `${canvasSize.width}px`,
-                backgroundImage: 'linear-gradient(#ccdfcc 1px, transparent 1px), linear-gradient(90deg, #ccdfcc 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
+                backgroundImage: backgroundImage 
+                  ? `url(${backgroundImage})`
+                  : 'linear-gradient(#ccdfcc 1px, transparent 1px), linear-gradient(90deg, #ccdfcc 1px, transparent 1px)',
+                backgroundSize: backgroundImage ? 'cover' : '20px 20px',
+                backgroundPosition: backgroundImage ? 'center' : 'initial',
+                backgroundRepeat: backgroundImage ? 'no-repeat' : 'initial'
               }}
             >
               {gardenPlants.map((plant) => (
