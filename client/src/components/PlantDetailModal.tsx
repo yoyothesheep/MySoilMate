@@ -9,9 +9,10 @@ interface PlantDetailModalProps {
   plant: Plant;
   isOpen: boolean;
   onClose: () => void;
+  onAddToGarden?: (plant: Plant) => void;
 }
 
-export function PlantDetailModal({ plant, isOpen, onClose }: PlantDetailModalProps) {
+export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: PlantDetailModalProps) {
   const [isAddingToCollection, setIsAddingToCollection] = useState(false);
   const { toast } = useToast();
   
@@ -34,6 +35,13 @@ export function PlantDetailModal({ plant, isOpen, onClose }: PlantDetailModalPro
       });
     } finally {
       setIsAddingToCollection(false);
+    }
+  };
+
+  const handleAddToGarden = () => {
+    if (onAddToGarden) {
+      onAddToGarden(plant);
+      onClose(); // Close modal after adding to garden
     }
   };
   
@@ -142,7 +150,7 @@ export function PlantDetailModal({ plant, isOpen, onClose }: PlantDetailModalPro
                     <HumidityIcon className="text-green-500 mr-2 h-5 w-5" />
                     Humidity
                   </div>
-                  <p className="text-sm text-gray-600">{plant.humidity || 'Adapts to normal indoor humidity levels. Higher humidity will promote better growth.'}</p>
+                  <p className="text-sm text-gray-600">{plant.humidity || 'Adapts to normal outdoor humidity levels. Consider additional watering during dry periods.'}</p>
                 </div>
               </div>
               
@@ -185,23 +193,44 @@ export function PlantDetailModal({ plant, isOpen, onClose }: PlantDetailModalPro
               )}
               
               <div className="pt-4 border-t border-gray-200">
-                <Button 
-                  className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                  onClick={handleAddToCollection}
-                  disabled={isAddingToCollection}
-                >
-                  {isAddingToCollection ? (
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  )}
-                  Add to My Collection
-                </Button>
+                {onAddToGarden ? (
+                  <div className="flex gap-2">
+                    <Button 
+                      className="flex-1 justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                      onClick={handleAddToGarden}
+                    >
+                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Add to Garden Design
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 justify-center px-4 py-2 text-sm font-medium border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none"
+                      onClick={onClose}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    onClick={handleAddToCollection}
+                    disabled={isAddingToCollection}
+                  >
+                    {isAddingToCollection ? (
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    )}
+                    Add to My Collection
+                  </Button>
+                )}
               </div>
             </div>
           </div>

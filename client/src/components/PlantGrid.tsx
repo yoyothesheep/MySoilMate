@@ -3,14 +3,16 @@ import { Plant } from "@shared/schema";
 import { PlantCard } from "./PlantCard";
 import { PlantDetailModal } from "./PlantDetailModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface PlantGridProps {
   plants: Plant[];
   isLoading: boolean;
   onSortChange: (sortOption: string) => void;
+  onAddPlantToSelection?: (plant: Plant) => void;
 }
 
-export function PlantGrid({ plants, isLoading, onSortChange }: PlantGridProps) {
+export function PlantGrid({ plants, isLoading, onSortChange, onAddPlantToSelection }: PlantGridProps) {
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -26,13 +28,19 @@ export function PlantGrid({ plants, isLoading, onSortChange }: PlantGridProps) {
   const handleSortChange = (value: string) => {
     onSortChange(value);
   };
+
+  const handleAddToGarden = (plant: Plant) => {
+    if (onAddPlantToSelection) {
+      onAddPlantToSelection(plant);
+    }
+  };
   
   return (
     <div className="flex-1">
       {/* Results Summary */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold text-gray-900">
-          {isLoading ? "Loading plants..." : `${plants.length} Plants`}
+          {isLoading ? "Loading plants..." : `${plants.length} Garden Plants`}
         </h1>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">Sort by:</span>
@@ -67,11 +75,28 @@ export function PlantGrid({ plants, isLoading, onSortChange }: PlantGridProps) {
       ) : plants.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {plants.map((plant) => (
-            <PlantCard 
-              key={plant.id} 
-              plant={plant} 
-              onClick={() => handlePlantClick(plant)} 
-            />
+            <div key={plant.id} className="relative group">
+              <PlantCard 
+                plant={plant} 
+                onClick={() => handlePlantClick(plant)} 
+              />
+              {onAddPlantToSelection && (
+                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToGarden(plant);
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    Add to Garden
+                  </Button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       ) : (
@@ -122,6 +147,7 @@ export function PlantGrid({ plants, isLoading, onSortChange }: PlantGridProps) {
           plant={selectedPlant}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          onAddToGarden={onAddPlantToSelection}
         />
       )}
     </div>
