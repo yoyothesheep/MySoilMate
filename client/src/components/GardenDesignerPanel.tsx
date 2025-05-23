@@ -373,6 +373,15 @@ export function GardenDesignerPanel({
             </div>
           </div>
         </div>
+        
+        {/* Hidden file input for background image upload */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   );
