@@ -52,6 +52,7 @@ export function PlantGrid({ plants, isLoading, onSortChange, onAddPlantToSelecti
               <SelectItem value="name">Name (A-Z)</SelectItem>
               <SelectItem value="difficulty">Care Difficulty</SelectItem>
               <SelectItem value="light">Light Needs</SelectItem>
+              <SelectItem value="zone">USDA Grow Zone</SelectItem>
             </SelectContent>
           </Select>
         </div>

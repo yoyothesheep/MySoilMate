@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { getDifficultyColor } from "@/lib/plantData";
 import { SunIcon, DropletIcon } from "./icons/PlantIcons";
+import { MapPin } from "lucide-react";
 
 interface PlantCardProps {
   plant: Plant;
@@ -46,7 +47,7 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
             {plant.difficultyLevel.charAt(0).toUpperCase() + plant.difficultyLevel.slice(1)}
           </span>
         </div>
-        <div className="mt-4 flex items-center space-x-4 text-sm">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center">
             <SunIcon className="text-yellow-500 mr-1 h-4 w-4" />
             <span>{plant.lightLevel.charAt(0).toUpperCase() + plant.lightLevel.slice(1)} Light</span>
@@ -54,6 +55,10 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
           <div className="flex items-center">
             <DropletIcon className="text-blue-500 mr-1 h-4 w-4" />
             <span>{formatWaterNeeds(plant.waterNeeds)}</span>
+          </div>
+          <div className="flex items-center">
+            <MapPin className="text-green-600 mr-1 h-4 w-4" />
+            <span>Zone {plant.growZone}</span>
           </div>
         </div>
         <Button

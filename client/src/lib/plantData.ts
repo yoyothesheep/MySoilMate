@@ -20,6 +20,10 @@ export function buildQueryString(filter: PlantFilter): string {
     params.append('difficultyLevels', filter.difficultyLevels.join(','));
   }
   
+  if (filter.growZones && filter.growZones.length > 0) {
+    params.append('growZones', filter.growZones.join(','));
+  }
+  
   if (filter.sort) {
     params.append('sort', filter.sort);
   }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon, TemperatureIcon, HumidityIcon, CheckCircleIcon, WarningIcon } from "./icons/PlantIcons";
+import { MapPin } from "lucide-react";
 import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
 
@@ -139,13 +140,23 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                 
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex items-center text-gray-700 font-medium mb-2">
+                    <MapPin className="text-green-600 mr-2 h-5 w-5" />
+                    USDA Grow Zone
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Zone {plant.growZone}. This plant is suitable for USDA hardiness zones {plant.growZone}.
+                  </p>
+                </div>
+                
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="flex items-center text-gray-700 font-medium mb-2">
                     <TemperatureIcon className="text-red-500 mr-2 h-5 w-5" />
                     Temperature
                   </div>
                   <p className="text-sm text-gray-600">{plant.temperature || 'Prefers temperatures between 65-80°F (18-27°C). Avoid cold drafts and sudden temperature changes.'}</p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-gray-50 p-3 rounded-lg col-span-2">
                   <div className="flex items-center text-gray-700 font-medium mb-2">
                     <HumidityIcon className="text-green-500 mr-2 h-5 w-5" />
                     Humidity

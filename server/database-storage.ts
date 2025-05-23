@@ -89,6 +89,9 @@ export class DatabaseStorage implements IStorage {
           case 'light':
             query = query.orderBy(plants.lightLevel);
             break;
+          case 'zone':
+            query = query.orderBy(plants.growZone);
+            break;
         }
       }
     }
