@@ -96,7 +96,8 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    return query;
+    const result = await query;
+    return result;
   }
 
   async getPlant(id: number): Promise<Plant | undefined> {
