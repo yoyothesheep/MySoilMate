@@ -7,12 +7,25 @@ import { Button } from "@/components/ui/button";
 
 interface PlantGridProps {
   plants: Plant[];
+  totalCount: number;
   isLoading: boolean;
+  isFetchingNextPage: boolean;
+  hasNextPage: boolean;
   onSortChange: (sortOption: string) => void;
   onAddPlantToSelection?: (plant: Plant) => void;
+  onLoadMore: () => void;
 }
 
-export function PlantGrid({ plants, isLoading, onSortChange, onAddPlantToSelection }: PlantGridProps) {
+export function PlantGrid({ 
+  plants, 
+  totalCount, 
+  isLoading, 
+  isFetchingNextPage, 
+  hasNextPage, 
+  onSortChange, 
+  onAddPlantToSelection, 
+  onLoadMore 
+}: PlantGridProps) {
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -40,7 +53,7 @@ export function PlantGrid({ plants, isLoading, onSortChange, onAddPlantToSelecti
       {/* Results Summary */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold text-gray-900">
-          {isLoading ? "Loading plants..." : `${plants.length} Garden Plants`}
+          {isLoading ? "Loading plants..." : `${plants.length} of ${totalCount} Garden Plants`}
         </h1>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">Sort by:</span>
@@ -107,38 +120,29 @@ export function PlantGrid({ plants, isLoading, onSortChange, onAddPlantToSelecti
         </div>
       )}
       
-      {/* Pagination - would normally be implemented with real pagination data */}
-      {plants.length > 0 && (
-        <div className="mt-8 flex justify-between items-center">
-          <button className="px-3 py-1 rounded text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50" disabled>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4 inline mr-1" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Previous
-          </button>
-          <div className="flex items-center space-x-1">
-            <span className="px-3 py-1 bg-primary text-white rounded">1</span>
-            <span className="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded cursor-pointer">2</span>
-            <span className="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded cursor-pointer">3</span>
-          </div>
-          <button className="px-3 py-1 rounded text-sm text-gray-700 hover:bg-gray-100">
-            Next
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4 inline ml-1" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+      {/* Infinite Scroll Loading */}
+      {isFetchingNextPage && (
+        <div className="mt-8 flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      )}
+      
+      {/* Load More Button (fallback for manual loading) */}
+      {hasNextPage && !isFetchingNextPage && (
+        <div className="mt-8 flex justify-center">
+          <Button 
+            onClick={onLoadMore}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
+          >
+            Load More Plants
+          </Button>
+        </div>
+      )}
+      
+      {/* End of results message */}
+      {!hasNextPage && plants.length > 0 && (
+        <div className="mt-8 text-center text-gray-500">
+          You've reached the end of the plant gallery! 🌱
         </div>
       )}
       

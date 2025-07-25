@@ -30,10 +30,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         waterNeeds: req.query.waterNeeds ? (req.query.waterNeeds as string).split(',') : undefined,
         growZones: req.query.growZones ? (req.query.growZones as string).split(',') : undefined,
         sort: req.query.sort as string,
+        page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
       });
       
-      const plants = await storage.getPlants(filter);
-      res.json(plants);
+      const result = await storage.getPlants(filter);
+      res.json(result);
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid query parameters", errors: error.errors });

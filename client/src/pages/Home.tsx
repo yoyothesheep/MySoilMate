@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { PlantHeader } from "@/components/PlantHeader";
 import { PlantSidebar } from "@/components/PlantSidebar";
 import { PlantGrid } from "@/components/PlantGrid";
 import { PlantFooter } from "@/components/PlantFooter";
 import { GardenDesignerPanel } from "@/components/GardenDesignerPanel";
-import { buildQueryString } from "@/lib/plantData";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { type PlantFilter, type Plant } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,17 +15,23 @@ export default function Home() {
     lightLevels: [],
     waterNeeds: [],
     growZones: [],
-    sort: "name"
+    sort: "name",
+    page: 1,
+    limit: 15
   });
   
   const [isGardenDesignerOpen, setIsGardenDesignerOpen] = useState(false);
   const [selectedPlants, setSelectedPlants] = useState<Plant[]>([]);
   
-  // Fetch plants based on current filter
-  const { data: plants = [], isLoading } = useQuery({
-    queryKey: [`/api/plants?${buildQueryString(filter)}`],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // Use infinite scroll hook for loading plants
+  const { 
+    plants, 
+    totalCount, 
+    isLoading, 
+    isFetchingNextPage, 
+    hasNextPage, 
+    loadMore 
+  } = useInfiniteScroll(filter);
   
   const handleSearch = (search: string) => {
     setFilter(prev => ({ ...prev, search }));
@@ -48,7 +53,7 @@ export default function Home() {
     }));
   };
   
-  const handleSortChange = (sortOption: string) => {
+  const handleSortChange = (sortOption: "name" | "light" | "zone") => {
     setFilter(prev => ({ ...prev, sort: sortOption }));
   };
   
@@ -148,9 +153,13 @@ export default function Home() {
             
             <PlantGrid 
               plants={plants} 
+              totalCount={totalCount}
               isLoading={isLoading} 
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage}
               onSortChange={handleSortChange}
               onAddPlantToSelection={handleAddPlantToSelection}
+              onLoadMore={loadMore}
             />
           </div>
         </div>

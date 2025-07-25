@@ -26,6 +26,14 @@ export function buildQueryString(filter: PlantFilter): string {
     params.append('sort', filter.sort);
   }
   
+  if (filter.page) {
+    params.append('page', filter.page.toString());
+  }
+  
+  if (filter.limit) {
+    params.append('limit', filter.limit.toString());
+  }
+  
   return params.toString();
 }
 

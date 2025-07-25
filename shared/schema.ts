@@ -102,6 +102,18 @@ export const plantFilterSchema = z.object({
   waterNeeds: z.array(z.string()).optional(),
   growZones: z.array(z.string()).optional(),
   sort: z.enum(['name', 'light', 'zone']).optional(),
+  page: z.number().min(1).optional().default(1),
+  limit: z.number().min(1).max(100).optional().default(15),
 });
 
 export type PlantFilter = z.infer<typeof plantFilterSchema>;
+
+// Paginated response type
+export type PaginatedPlantsResponse = {
+  plants: PlantWithZones[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};

@@ -2,7 +2,7 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
   type PlantFilter, type PlantWithZones,
-  zones, plantZones
+  zones, plantZones, type PaginatedPlantsResponse
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and, inArray } from "drizzle-orm";
@@ -29,7 +29,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Plant methods
-  async getPlants(filter?: PlantFilter): Promise<PlantWithZones[]> {
+  async getPlants(filter?: PlantFilter): Promise<PaginatedPlantsResponse> {
     // Get plants with their grow zones using relations
     const plantsWithZones = await db.query.plants.findMany({
       with: {
@@ -99,7 +99,25 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    return filteredPlants;
+    // Pagination
+    const totalCount = filteredPlants.length;
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 15;
+    const offset = (page - 1) * limit;
+    const paginatedPlants = filteredPlants.slice(offset, offset + limit);
+    
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+    
+    return {
+      plants: paginatedPlants,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage
+    };
   }
 
   async getPlant(id: number): Promise<PlantWithZones | undefined> {

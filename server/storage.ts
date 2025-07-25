@@ -2,11 +2,10 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
   plantFilterSchema, type PlantFilter,
-  type PlantWithZones
+  type PlantWithZones, type PaginatedPlantsResponse
 } from "@shared/schema";
 
 // Use database storage instead of memory storage for production
-import { DatabaseStorage } from "./database-storage";
 
 export interface IStorage {
   // User methods (keeping existing ones)
@@ -15,7 +14,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   
   // Plant methods
-  getPlants(filter?: PlantFilter): Promise<PlantWithZones[]>;
+  getPlants(filter?: PlantFilter): Promise<PaginatedPlantsResponse>;
   getPlant(id: number): Promise<PlantWithZones | undefined>;
   createPlant(plant: InsertPlant): Promise<Plant>;
   updatePlant(id: number, plant: Partial<InsertPlant>): Promise<Plant | undefined>;
@@ -57,7 +56,7 @@ export class MemStorage implements IStorage {
   }
 
   // Plant methods
-  async getPlants(filter?: PlantFilter): Promise<PlantWithZones[]> {
+  async getPlants(filter?: PlantFilter): Promise<PaginatedPlantsResponse> {
     let plants = Array.from(this.plants.values());
     
     if (filter) {
@@ -84,8 +83,6 @@ export class MemStorage implements IStorage {
           filter.waterNeeds!.some(need => plant.waterNeeds.toLowerCase().includes(need.toLowerCase()))
         );
       }
-      
-
       
       // Filter by grow zones
       if (filter.growZones && filter.growZones.length > 0) {
@@ -124,7 +121,25 @@ export class MemStorage implements IStorage {
       }
     }
     
-    return plants;
+    // Pagination
+    const totalCount = plants.length;
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 15;
+    const offset = (page - 1) * limit;
+    const paginatedPlants = plants.slice(offset, offset + limit);
+    
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+    
+    return {
+      plants: paginatedPlants,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage
+    };
   }
 
   async getPlant(id: number): Promise<PlantWithZones | undefined> {
@@ -306,6 +321,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use database storage
-import { DatabaseStorage } from './database-storage';
-export const storage = new DatabaseStorage();
+// Use memory storage for now while database connection is being fixed
+export const storage = new MemStorage();
