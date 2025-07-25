@@ -5,8 +5,8 @@ import {
   type PlantWithZones
 } from "@shared/schema";
 
-// modify the interface with any CRUD methods
-// you might need
+// Use database storage instead of memory storage for production
+import { DatabaseStorage } from "./database-storage";
 
 export interface IStorage {
   // User methods (keeping existing ones)
@@ -90,7 +90,7 @@ export class MemStorage implements IStorage {
       // Filter by grow zones
       if (filter.growZones && filter.growZones.length > 0) {
         plants = plants.filter(plant => 
-          plant.growZones.some(gz => filter.growZones!.includes(gz.zone))
+          plant.plantZones.some(pz => filter.growZones!.includes(pz.zone.zone))
         );
       }
       
@@ -115,8 +115,8 @@ export class MemStorage implements IStorage {
           case 'zone':
             // Sort by lowest grow zone number
             plants.sort((a, b) => {
-              const aLowestZone = Math.min(...a.growZones.map(gz => parseInt(gz.zone)));
-              const bLowestZone = Math.min(...b.growZones.map(gz => parseInt(gz.zone)));
+              const aLowestZone = Math.min(...a.plantZones.map(pz => parseInt(pz.zone.zone.replace(/[ab]/, ''))));
+              const bLowestZone = Math.min(...b.plantZones.map(pz => parseInt(pz.zone.zone.replace(/[ab]/, ''))));
               return aLowestZone - bLowestZone;
             });
             break;
@@ -134,7 +134,7 @@ export class MemStorage implements IStorage {
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {
     const id = this.plantCurrentId++;
     const plant: Plant = { ...insertPlant, id };
-    const plantWithZones: PlantWithZones = { ...plant, growZones: [] };
+    const plantWithZones: PlantWithZones = { ...plant, plantZones: [] };
     this.plants.set(id, plantWithZones);
     return plant;
   }
@@ -145,7 +145,7 @@ export class MemStorage implements IStorage {
     
     const updatedPlantWithZones = { ...existingPlant, ...updatePlant };
     this.plants.set(id, updatedPlantWithZones);
-    return { ...updatedPlantWithZones, growZones: undefined } as Plant;
+    return { ...updatedPlantWithZones, plantZones: undefined } as Plant;
   }
 
   async deletePlant(id: number): Promise<boolean> {

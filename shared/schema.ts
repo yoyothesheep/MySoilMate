@@ -35,22 +35,36 @@ export const plants = pgTable("plants", {
   commonIssues: text("common_issues"),
 });
 
-// Grow zones table - separate table for plant grow zones
-export const growZones = pgTable("grow_zones", {
+// Zones reference table - USDA hardiness zones
+export const zones = pgTable("zones", {
+  id: serial("id").primaryKey(),
+  zone: text("zone").notNull().unique(), // Individual zone like "4a", "5b", "6a", etc.
+});
+
+// Plant zones junction table - many-to-many relationship
+export const plantZones = pgTable("plant_zones", {
   id: serial("id").primaryKey(),
   plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: "cascade" }),
-  zone: text("zone").notNull(), // Individual zone like "4", "5", "6", etc.
+  zoneId: integer("zone_id").notNull().references(() => zones.id, { onDelete: "cascade" }),
 });
 
 // Relations
 export const plantsRelations = relations(plants, ({ many }) => ({
-  growZones: many(growZones),
+  plantZones: many(plantZones),
 }));
 
-export const growZonesRelations = relations(growZones, ({ one }) => ({
+export const zonesRelations = relations(zones, ({ many }) => ({
+  plantZones: many(plantZones),
+}));
+
+export const plantZonesRelations = relations(plantZones, ({ one }) => ({
   plant: one(plants, {
-    fields: [growZones.plantId],
+    fields: [plantZones.plantId],
     references: [plants.id],
+  }),
+  zone: one(zones, {
+    fields: [plantZones.zoneId],
+    references: [zones.id],
   }),
 }));
 
@@ -58,14 +72,20 @@ export const insertPlantSchema = createInsertSchema(plants).omit({
   id: true,
 });
 
-export const insertGrowZoneSchema = createInsertSchema(growZones).omit({
+export const insertZoneSchema = createInsertSchema(zones).omit({
+  id: true,
+});
+
+export const insertPlantZoneSchema = createInsertSchema(plantZones).omit({
   id: true,
 });
 
 export type InsertPlant = z.infer<typeof insertPlantSchema>;
 export type Plant = typeof plants.$inferSelect;
-export type InsertGrowZone = z.infer<typeof insertGrowZoneSchema>;
-export type GrowZone = typeof growZones.$inferSelect;
+export type InsertZone = z.infer<typeof insertZoneSchema>;
+export type Zone = typeof zones.$inferSelect;
+export type InsertPlantZone = z.infer<typeof insertPlantZoneSchema>;
+export type PlantZone = typeof plantZones.$inferSelect;
 
 export type LightLevel = 'low' | 'medium' | 'bright';
 export type WaterNeeds = 'low' | 'medium' | 'high';
@@ -73,7 +93,7 @@ export type ZoneNumber = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '
 
 // Type for plant with grow zones included
 export type PlantWithZones = Plant & {
-  growZones: GrowZone[];
+  plantZones: (PlantZone & { zone: Zone })[];
 };
 
 export const plantFilterSchema = z.object({

@@ -2,7 +2,7 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
   type PlantFilter, type PlantWithZones,
-  growZones
+  zones, plantZones
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and, inArray } from "drizzle-orm";
@@ -33,7 +33,11 @@ export class DatabaseStorage implements IStorage {
     // Get plants with their grow zones using relations
     const plantsWithZones = await db.query.plants.findMany({
       with: {
-        growZones: true
+        plantZones: {
+          with: {
+            zone: true
+          }
+        }
       }
     });
     
@@ -69,8 +73,8 @@ export class DatabaseStorage implements IStorage {
       // Grow zones filter
       if (filter.growZones && filter.growZones.length > 0) {
         filteredPlants = filteredPlants.filter(plant => {
-          const plantZones = plant.growZones.map(gz => gz.zone);
-          return filter.growZones!.some(zone => plantZones.includes(zone));
+          const plantZonesValues = plant.plantZones.map(pz => pz.zone.zone);
+          return filter.growZones!.some(zone => plantZonesValues.includes(zone));
         });
       }
       
@@ -86,8 +90,8 @@ export class DatabaseStorage implements IStorage {
             break;
           case 'zone':
             filteredPlants.sort((a, b) => {
-              const aMinZone = Math.min(...a.growZones.map(gz => parseInt(gz.zone)));
-              const bMinZone = Math.min(...b.growZones.map(gz => parseInt(gz.zone)));
+              const aMinZone = Math.min(...a.plantZones.map(pz => parseInt(pz.zone.zone.replace(/[ab]/, ''))));
+              const bMinZone = Math.min(...b.plantZones.map(pz => parseInt(pz.zone.zone.replace(/[ab]/, ''))));
               return aMinZone - bMinZone;
             });
             break;
@@ -102,7 +106,11 @@ export class DatabaseStorage implements IStorage {
     const plant = await db.query.plants.findFirst({
       where: eq(plants.id, id),
       with: {
-        growZones: true
+        plantZones: {
+          with: {
+            zone: true
+          }
+        }
       }
     });
     return plant || undefined;
