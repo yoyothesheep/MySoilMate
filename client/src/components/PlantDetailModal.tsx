@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon, TemperatureIcon, HumidityIcon, CheckCircleIcon, WarningIcon } from "./icons/PlantIcons";
@@ -7,10 +7,39 @@ import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
 import { PlantImageUpload } from "./PlantImageUpload";
 
+// Component for handling plant image display with object storage
+function PlantImage({ plantId, plant, className }: { plantId: number; plant: any; className: string }) {
+  const [imageUrl, setImageUrl] = useState<string>('');
+  
+  useEffect(() => {
+    if (plant.imageStoragePath) {
+      fetch(`/api/plants/${plantId}/image`)
+        .then(res => res.json())
+        .then(data => setImageUrl(data.imageUrl))
+        .catch(() => setImageUrl('https://via.placeholder.com/400x500?text=Plant+Image+Unavailable'));
+    } else if (plant.imageUrl) {
+      setImageUrl(plant.imageUrl);
+    } else {
+      setImageUrl('https://via.placeholder.com/400x500?text=Plant+Image+Unavailable');
+    }
+  }, [plantId, plant.imageStoragePath, plant.imageUrl]);
+
+  return (
+    <img 
+      src={imageUrl}
+      alt={plant.name} 
+      className={className}
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
+      }}
+    />
+  );
+}
+
 interface PlantDetailModalProps {
   plant: Plant & { 
     growZones?: Array<{ zone: string }>;
-    imageData?: string;
+    imageStoragePath?: string;
     imageMimeType?: string;
   };
   isOpen: boolean;
@@ -90,17 +119,7 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
           
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 relative">
-              <img 
-                src={plant.imageData && plant.imageMimeType 
-                  ? `data:${plant.imageMimeType};base64,${plant.imageData}`
-                  : plant.imageUrl || `/api/plants/${plant.id}/image`
-                } 
-                alt={plant.name} 
-                className="h-64 md:h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
-                }}
-              />
+              <PlantImage plantId={plant.id} plant={plant} className="h-64 md:h-full w-full object-cover" />
               
               {/* Image upload button overlay */}
               <Button
