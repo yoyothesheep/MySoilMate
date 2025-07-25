@@ -25,7 +25,7 @@ export const plants = pgTable("plants", {
   scientificName: text("scientific_name").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url"), // Keep for backward compatibility, but make optional
-  imageStoragePath: text("image_storage_path"), // Path to image in object storage
+  imageData: text("image_data"), // Base64 encoded image data
   imageMimeType: text("image_mime_type"), // MIME type of the stored image
   lightLevel: text("light_level").notNull(), // 'low', 'medium', 'bright'
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'

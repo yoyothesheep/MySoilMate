@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon } from "./icons/PlantIcons";
@@ -7,7 +6,7 @@ import { MapPin } from "lucide-react";
 interface PlantCardProps {
   plant: Plant & { 
     growZones?: Array<{ zone: string }>;
-    imageStoragePath?: string;
+    imageData?: string;
     imageMimeType?: string;
   };
   onClick: () => void;
@@ -28,9 +27,15 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
     }
   };
 
-  // Get image source - use imageUrl field directly
+  // Get image source - prioritize database images over URLs
   const getImageSrc = () => {
-    return plant.imageUrl || 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
+    if (plant.imageData && plant.imageMimeType) {
+      return `data:${plant.imageMimeType};base64,${plant.imageData}`;
+    }
+    if (plant.imageUrl) {
+      return plant.imageUrl;
+    }
+    return '/api/plants/' + plant.id + '/image';
   };
   
   return (

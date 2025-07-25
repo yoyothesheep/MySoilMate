@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { insertPlantSchema, plantFilterSchema } from "@shared/schema";
-import { objectStorage } from "./object-storage";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -118,32 +117,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      // Upload to object storage
-      const uploadResult = await objectStorage.uploadImage(file.buffer, file.mimetype, id);
+      // Convert buffer to base64
+      const imageData = file.buffer.toString('base64');
+      const imageMimeType = file.mimetype;
 
-      // Update plant with object storage path and URL
+      // Update plant with image data
       const updatedPlant = await storage.updatePlant(id, {
-        imageStoragePath: uploadResult.key,
-        imageMimeType: file.mimetype,
-        imageUrl: uploadResult.url // Store the uploaded image URL
+        imageData,
+        imageMimeType,
+        imageUrl: null // Clear the URL since we're storing the image
       });
 
       if (!updatedPlant) {
         return res.status(404).json({ message: "Plant not found" });
       }
 
-      res.json({ 
-        message: "Image uploaded successfully", 
-        plant: updatedPlant,
-        imageUrl: uploadResult.url 
-      });
+      res.json({ message: "Image uploaded successfully", plant: updatedPlant });
     } catch (error) {
-      console.error("Image upload error:", error);
       res.status(500).json({ message: "Failed to upload image" });
     }
   });
 
-  // Route to get signed URL for stored images
+  // Route to serve stored images
   app.get("/api/plants/:id/image", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -153,16 +148,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Plant not found" });
       }
 
-      if (!plant.imageStoragePath) {
+      if (!plant.imageData || !plant.imageMimeType) {
         return res.status(404).json({ message: "No image found for this plant" });
       }
 
-      // Get signed URL from object storage
-      const signedUrl = await objectStorage.getSignedUrl(plant.imageStoragePath);
-      
-      res.json({ imageUrl: signedUrl });
+      // Convert base64 back to buffer and send
+      const imageBuffer = Buffer.from(plant.imageData, 'base64');
+      res.setHeader('Content-Type', plant.imageMimeType);
+      res.setHeader('Content-Length', imageBuffer.length);
+      res.send(imageBuffer);
     } catch (error) {
-      console.error("Failed to retrieve image URL:", error);
       res.status(500).json({ message: "Failed to retrieve image" });
     }
   });

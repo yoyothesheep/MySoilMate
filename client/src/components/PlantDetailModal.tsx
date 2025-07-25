@@ -7,26 +7,10 @@ import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
 import { PlantImageUpload } from "./PlantImageUpload";
 
-// Component for handling plant image display
-function PlantImage({ plantId, plant, className }: { plantId: number; plant: any; className: string }) {
-  const imageSrc = plant.imageUrl || 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
-
-  return (
-    <img 
-      src={imageSrc}
-      alt={plant.name} 
-      className={className}
-      onError={(e) => {
-        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
-      }}
-    />
-  );
-}
-
 interface PlantDetailModalProps {
   plant: Plant & { 
     growZones?: Array<{ zone: string }>;
-    imageStoragePath?: string;
+    imageData?: string;
     imageMimeType?: string;
   };
   isOpen: boolean;
@@ -106,7 +90,17 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
           
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 relative">
-              <PlantImage plantId={plant.id} plant={plant} className="h-64 md:h-full w-full object-cover" />
+              <img 
+                src={plant.imageData && plant.imageMimeType 
+                  ? `data:${plant.imageMimeType};base64,${plant.imageData}`
+                  : plant.imageUrl || `/api/plants/${plant.id}/image`
+                } 
+                alt={plant.name} 
+                className="h-64 md:h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
+                }}
+              />
               
               {/* Image upload button overlay */}
               <Button
