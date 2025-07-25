@@ -105,3 +105,5 @@ Preferred communication style: Simple, everyday language.
 **shadcn/ui + Tailwind**: Provides a comprehensive, customizable component system with excellent developer experience and consistent design patterns.
 
 **React Query**: Handles complex server state management, caching, and synchronization with minimal boilerplate compared to Redux or other state management solutions.
+
+**Object Storage Migration**: Migrated from database blob storage to AWS S3-compatible object storage for better scalability and performance. Images are stored in the "Plant_Images" bucket and URLs are stored directly in the database's image_url field for faster access.

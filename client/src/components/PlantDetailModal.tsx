@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon, TemperatureIcon, HumidityIcon, CheckCircleIcon, WarningIcon } from "./icons/PlantIcons";
@@ -7,26 +7,13 @@ import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
 import { PlantImageUpload } from "./PlantImageUpload";
 
-// Component for handling plant image display with object storage
+// Component for handling plant image display
 function PlantImage({ plantId, plant, className }: { plantId: number; plant: any; className: string }) {
-  const [imageUrl, setImageUrl] = useState<string>('');
-  
-  useEffect(() => {
-    if (plant.imageStoragePath) {
-      fetch(`/api/plants/${plantId}/image`)
-        .then(res => res.json())
-        .then(data => setImageUrl(data.imageUrl))
-        .catch(() => setImageUrl('https://via.placeholder.com/400x500?text=Plant+Image+Unavailable'));
-    } else if (plant.imageUrl) {
-      setImageUrl(plant.imageUrl);
-    } else {
-      setImageUrl('https://via.placeholder.com/400x500?text=Plant+Image+Unavailable');
-    }
-  }, [plantId, plant.imageStoragePath, plant.imageUrl]);
+  const imageSrc = plant.imageUrl || 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
 
   return (
     <img 
-      src={imageUrl}
+      src={imageSrc}
       alt={plant.name} 
       className={className}
       onError={(e) => {

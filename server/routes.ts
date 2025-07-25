@@ -121,11 +121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Upload to object storage
       const uploadResult = await objectStorage.uploadImage(file.buffer, file.mimetype, id);
 
-      // Update plant with object storage path
+      // Update plant with object storage path and URL
       const updatedPlant = await storage.updatePlant(id, {
         imageStoragePath: uploadResult.key,
         imageMimeType: file.mimetype,
-        imageUrl: null // Clear the URL since we're using object storage
+        imageUrl: uploadResult.url // Store the uploaded image URL
       });
 
       if (!updatedPlant) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon } from "./icons/PlantIcons";
@@ -28,27 +28,15 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
     }
   };
 
-  // Get image source - prioritize object storage over URLs
-  const [imageUrl, setImageUrl] = useState<string>('');
-  
-  useEffect(() => {
-    if (plant.imageStoragePath) {
-      // Fetch signed URL from API
-      fetch(`/api/plants/${plant.id}/image`)
-        .then(res => res.json())
-        .then(data => setImageUrl(data.imageUrl))
-        .catch(() => setImageUrl('https://via.placeholder.com/400x300?text=Plant+Image+Unavailable'));
-    } else if (plant.imageUrl) {
-      setImageUrl(plant.imageUrl);
-    } else {
-      setImageUrl('https://via.placeholder.com/400x300?text=Plant+Image+Unavailable');
-    }
-  }, [plant.id, plant.imageStoragePath, plant.imageUrl]);
+  // Get image source - use imageUrl field directly
+  const getImageSrc = () => {
+    return plant.imageUrl || 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
+  };
   
   return (
     <div className="plant-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg">
       <img 
-        src={imageUrl} 
+        src={getImageSrc()} 
         alt={plant.name} 
         className="h-56 w-full object-cover"
         onError={(e) => {
