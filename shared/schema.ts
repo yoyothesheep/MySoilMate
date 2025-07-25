@@ -1,5 +1,6 @@
 import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 import { z } from "zod";
 
 // User schema (keeping the existing one)
@@ -27,24 +28,53 @@ export const plants = pgTable("plants", {
   lightLevel: text("light_level").notNull(), // 'low', 'medium', 'bright'
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
   difficultyLevel: text("difficulty_level").notNull(), // 'beginner', 'intermediate', 'expert'
-  growZone: text("grow_zone").notNull().default("4-9"), // USDA hardiness zones (e.g., "5-9")
   temperature: text("temperature"),
   humidity: text("humidity"),
   careInstructions: text("care_instructions"),
   commonIssues: text("common_issues"),
 });
 
+// Grow zones table - separate table for plant grow zones
+export const growZones = pgTable("grow_zones", {
+  id: serial("id").primaryKey(),
+  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: "cascade" }),
+  zone: text("zone").notNull(), // Individual zone like "4", "5", "6", etc.
+});
+
+// Relations
+export const plantsRelations = relations(plants, ({ many }) => ({
+  growZones: many(growZones),
+}));
+
+export const growZonesRelations = relations(growZones, ({ one }) => ({
+  plant: one(plants, {
+    fields: [growZones.plantId],
+    references: [plants.id],
+  }),
+}));
+
 export const insertPlantSchema = createInsertSchema(plants).omit({
+  id: true,
+});
+
+export const insertGrowZoneSchema = createInsertSchema(growZones).omit({
   id: true,
 });
 
 export type InsertPlant = z.infer<typeof insertPlantSchema>;
 export type Plant = typeof plants.$inferSelect;
+export type InsertGrowZone = z.infer<typeof insertGrowZoneSchema>;
+export type GrowZone = typeof growZones.$inferSelect;
 
 export type LightLevel = 'low' | 'medium' | 'bright';
 export type WaterNeeds = 'low' | 'medium' | 'high';
 export type DifficultyLevel = 'beginner' | 'intermediate' | 'expert';
-export type GrowZone = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12' | '13';
+export type ZoneNumber = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12' | '13';
+
+// Type for plant with grow zones included
+export type PlantWithZones = Plant & {
+  growZones: GrowZone[];
+};
 
 export const plantFilterSchema = z.object({
   search: z.string().optional(),

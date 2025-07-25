@@ -1,7 +1,8 @@
 import { 
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
-  type PlantFilter
+  type PlantFilter, type PlantWithZones,
+  growZones
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and, inArray } from "drizzle-orm";
@@ -28,80 +29,91 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Plant methods
-  async getPlants(filter?: PlantFilter): Promise<Plant[]> {
-    let query = db.select().from(plants);
+  async getPlants(filter?: PlantFilter): Promise<PlantWithZones[]> {
+    // Get plants with their grow zones using relations
+    const plantsWithZones = await db.query.plants.findMany({
+      with: {
+        growZones: true
+      }
+    });
+    
+    let filteredPlants = plantsWithZones;
     
     if (filter) {
-      const conditions = [];
-      
       // Search filter
       if (filter.search) {
-        conditions.push(
-          or(
-            ilike(plants.name, `%${filter.search}%`),
-            ilike(plants.scientificName, `%${filter.search}%`),
-            ilike(plants.description, `%${filter.search}%`)
-          )
+        const searchTerm = filter.search.toLowerCase();
+        filteredPlants = filteredPlants.filter(plant => 
+          plant.name.toLowerCase().includes(searchTerm) || 
+          plant.scientificName.toLowerCase().includes(searchTerm) ||
+          plant.description.toLowerCase().includes(searchTerm)
         );
       }
       
       // Light levels filter
       if (filter.lightLevels && filter.lightLevels.length > 0) {
-        conditions.push(inArray(plants.lightLevel, filter.lightLevels));
+        filteredPlants = filteredPlants.filter(plant => 
+          filter.lightLevels!.includes(plant.lightLevel)
+        );
       }
       
       // Water needs filter
       if (filter.waterNeeds && filter.waterNeeds.length > 0) {
-        conditions.push(inArray(plants.waterNeeds, filter.waterNeeds));
+        filteredPlants = filteredPlants.filter(plant => 
+          filter.waterNeeds!.includes(plant.waterNeeds)
+        );
       }
       
       // Difficulty levels filter
       if (filter.difficultyLevels && filter.difficultyLevels.length > 0) {
-        conditions.push(inArray(plants.difficultyLevel, filter.difficultyLevels));
+        filteredPlants = filteredPlants.filter(plant => 
+          filter.difficultyLevels!.includes(plant.difficultyLevel)
+        );
       }
       
       // Grow zones filter
       if (filter.growZones && filter.growZones.length > 0) {
-        // Since grow zones are stored as ranges like "5-9", we need to check if any of the
-        // selected zones fall within the range of each plant
-        const growZoneConditions = filter.growZones.map(zone => {
-          return ilike(plants.growZone, `%${zone}%`);
+        filteredPlants = filteredPlants.filter(plant => {
+          const plantZones = plant.growZones.map(gz => gz.zone);
+          return filter.growZones!.some(zone => plantZones.includes(zone));
         });
-        conditions.push(or(...growZoneConditions));
-      }
-      
-      // Apply all conditions if there are any
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
       }
       
       // Sorting
       if (filter.sort) {
         switch (filter.sort) {
           case 'name':
-            query = query.orderBy(plants.name);
+            filteredPlants.sort((a, b) => a.name.localeCompare(b.name));
             break;
           case 'difficulty':
-            // This is an approximation as we can't directly map string values in SQL like we can in memory
-            // We'd need a more sophisticated solution for production
-            query = query.orderBy(plants.difficultyLevel);
+            const difficultyOrder = { 'beginner': 1, 'intermediate': 2, 'expert': 3 };
+            filteredPlants.sort((a, b) => difficultyOrder[a.difficultyLevel as keyof typeof difficultyOrder] - difficultyOrder[b.difficultyLevel as keyof typeof difficultyOrder]);
             break;
           case 'light':
-            query = query.orderBy(plants.lightLevel);
+            const lightOrder = { 'low': 1, 'medium': 2, 'bright': 3 };
+            filteredPlants.sort((a, b) => lightOrder[a.lightLevel as keyof typeof lightOrder] - lightOrder[b.lightLevel as keyof typeof lightOrder]);
             break;
           case 'zone':
-            query = query.orderBy(plants.growZone);
+            filteredPlants.sort((a, b) => {
+              const aMinZone = Math.min(...a.growZones.map(gz => parseInt(gz.zone)));
+              const bMinZone = Math.min(...b.growZones.map(gz => parseInt(gz.zone)));
+              return aMinZone - bMinZone;
+            });
             break;
         }
       }
     }
     
-    const result = await query;
-    return result;
+    return filteredPlants;
   }
 
-  async getPlant(id: number): Promise<Plant | undefined> {
-    const [plant] = await db.select().from(plants).where(eq(plants.id, id));
+  async getPlant(id: number): Promise<PlantWithZones | undefined> {
+    const plant = await db.query.plants.findFirst({
+      where: eq(plants.id, id),
+      with: {
+        growZones: true
+      }
+    });
     return plant || undefined;
   }
 

@@ -1,7 +1,8 @@
 import { 
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
-  plantFilterSchema, type PlantFilter
+  plantFilterSchema, type PlantFilter,
+  type PlantWithZones
 } from "@shared/schema";
 
 // modify the interface with any CRUD methods
@@ -14,8 +15,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   
   // Plant methods
-  getPlants(filter?: PlantFilter): Promise<Plant[]>;
-  getPlant(id: number): Promise<Plant | undefined>;
+  getPlants(filter?: PlantFilter): Promise<PlantWithZones[]>;
+  getPlant(id: number): Promise<PlantWithZones | undefined>;
   createPlant(plant: InsertPlant): Promise<Plant>;
   updatePlant(id: number, plant: Partial<InsertPlant>): Promise<Plant | undefined>;
   deletePlant(id: number): Promise<boolean>;
@@ -23,7 +24,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
-  private plants: Map<number, Plant>;
+  private plants: Map<number, PlantWithZones>;
   userCurrentId: number;
   plantCurrentId: number;
 
@@ -56,7 +57,7 @@ export class MemStorage implements IStorage {
   }
 
   // Plant methods
-  async getPlants(filter?: PlantFilter): Promise<Plant[]> {
+  async getPlants(filter?: PlantFilter): Promise<PlantWithZones[]> {
     let plants = Array.from(this.plants.values());
     
     if (filter) {
@@ -124,14 +125,15 @@ export class MemStorage implements IStorage {
     return plants;
   }
 
-  async getPlant(id: number): Promise<Plant | undefined> {
+  async getPlant(id: number): Promise<PlantWithZones | undefined> {
     return this.plants.get(id);
   }
 
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {
     const id = this.plantCurrentId++;
     const plant: Plant = { ...insertPlant, id };
-    this.plants.set(id, plant);
+    const plantWithZones: PlantWithZones = { ...plant, growZones: [] };
+    this.plants.set(id, plantWithZones);
     return plant;
   }
 
@@ -139,9 +141,9 @@ export class MemStorage implements IStorage {
     const existingPlant = this.plants.get(id);
     if (!existingPlant) return undefined;
     
-    const updatedPlant = { ...existingPlant, ...updatePlant };
-    this.plants.set(id, updatedPlant);
-    return updatedPlant;
+    const updatedPlantWithZones = { ...existingPlant, ...updatePlant };
+    this.plants.set(id, updatedPlantWithZones);
+    return { ...updatedPlantWithZones, growZones: undefined } as Plant;
   }
 
   async deletePlant(id: number): Promise<boolean> {
