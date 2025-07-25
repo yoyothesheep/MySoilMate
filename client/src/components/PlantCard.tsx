@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
-import { SunIcon, DropletIcon } from "./icons/PlantIcons";
-import { MapPin } from "lucide-react";
+import { SunIcon } from "./icons/PlantIcons";
+import { MapPin, Flower } from "lucide-react";
 
 interface PlantCardProps {
   plant: Plant & { 
@@ -11,18 +11,9 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant, onClick }: PlantCardProps) {
-  // Format water needs for display
-  const formatWaterNeeds = (waterNeeds: string): string => {
-    switch (waterNeeds.toLowerCase()) {
-      case 'low':
-        return 'When completely dry';
-      case 'medium':
-        return 'When top inch is dry';
-      case 'high':
-        return 'Keep soil moist';
-      default:
-        return waterNeeds;
-    }
+  // Format bloom season for display
+  const formatBloomSeason = (bloomSeason: string): string => {
+    return bloomSeason;
   };
 
   // Get image source - use API endpoint first, fallback to URL
@@ -60,8 +51,8 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
             <span>{plant.lightLevel.charAt(0).toUpperCase() + plant.lightLevel.slice(1)} Light</span>
           </div>
           <div className="flex items-center">
-            <DropletIcon className="text-blue-500 mr-1 h-4 w-4" />
-            <span>{formatWaterNeeds(plant.waterNeeds)}</span>
+            <Flower className="text-pink-500 mr-1 h-4 w-4" />
+            <span>{formatBloomSeason(plant.bloomSeason || 'Spring-Summer')}</span>
           </div>
           <div className="flex items-center">
             <MapPin className="text-green-600 mr-1 h-4 w-4" />

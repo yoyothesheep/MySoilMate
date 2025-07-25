@@ -29,6 +29,8 @@ export const plants = pgTable("plants", {
   imageMimeType: text("image_mime_type"), // MIME type of the stored image
   lightLevel: text("light_level").notNull(), // 'low', 'medium', 'bright'
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
+  bloomSeason: text("bloom_season").notNull(), // 'Spring', 'Summer', 'Fall', 'Winter' or combinations
+  bloomTime: text("bloom_time").notNull(), // Descriptive text about bloom timing
   temperature: text("temperature"),
   humidity: text("humidity"),
   careInstructions: text("care_instructions"),
