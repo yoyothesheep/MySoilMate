@@ -252,15 +252,23 @@ export function GardenDesignerPanel({
                 >
                   <div className="plant-item relative flex flex-col items-center justify-center h-full rounded-full">
                     <div className="absolute inset-0 rounded-full bg-white border-2 border-green-400 shadow-md overflow-hidden">
-                      <div 
-                        className="h-full w-full bg-cover bg-center"
+                      <img 
+                        src={`/api/plants/${plant.plant.id}/image`}
+                        alt={plant.plant.name}
+                        className="h-full w-full object-cover"
                         style={{
-                          backgroundImage: `url(${plant.plant.imageUrl})`,
-                          backgroundSize: 'cover',
                           filter: 'saturate(1.2)',
                           opacity: 0.85
                         }}
-                      ></div>
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          if (img.src.includes('/api/plants/') && plant.plant.imageUrl) {
+                            img.src = plant.plant.imageUrl;
+                          } else {
+                            img.src = 'https://via.placeholder.com/100x100?text=Plant';
+                          }
+                        }}
+                      />
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 text-center px-1 py-0.5 bg-black bg-opacity-50 rounded-b-full">
                       <span className="text-xs font-medium text-white truncate">{plant.plant.name}</span>
@@ -306,11 +314,16 @@ export function GardenDesignerPanel({
                   <div key={plant.id} className="flex group relative bg-gray-50 rounded-lg overflow-hidden shadow-sm transition-all hover:shadow cursor-pointer">
                     <div className="w-16 h-16 flex-shrink-0">
                       <img 
-                        src={plant.imageUrl} 
+                        src={`/api/plants/${plant.id}/image`}
                         alt={plant.name} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Plant';
+                          const img = e.target as HTMLImageElement;
+                          if (img.src.includes('/api/plants/') && plant.imageUrl) {
+                            img.src = plant.imageUrl;
+                          } else {
+                            img.src = 'https://via.placeholder.com/100?text=Plant';
+                          }
                         }}
                       />
                     </div>
