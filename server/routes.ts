@@ -1,10 +1,26 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
 import { storage } from "./storage";
 import { insertPlantSchema, plantFilterSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure multer for file uploads (memory storage)
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed!'));
+      }
+    }
+  });
+
   // Plant routes
   app.get("/api/plants", async (req: Request, res: Response) => {
     try {
@@ -12,7 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         search: req.query.search as string,
         lightLevels: req.query.lightLevels ? (req.query.lightLevels as string).split(',') : undefined,
         waterNeeds: req.query.waterNeeds ? (req.query.waterNeeds as string).split(',') : undefined,
-        difficultyLevels: req.query.difficultyLevels ? (req.query.difficultyLevels as string).split(',') : undefined,
+        growZones: req.query.growZones ? (req.query.growZones as string).split(',') : undefined,
         sort: req.query.sort as string,
       });
       
@@ -88,6 +104,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete plant" });
+    }
+  });
+
+  // Image upload route for plants
+  app.post("/api/plants/:id/image", upload.single('image'), async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      // Convert buffer to base64
+      const imageData = file.buffer.toString('base64');
+      const imageMimeType = file.mimetype;
+
+      // Update plant with image data
+      const updatedPlant = await storage.updatePlant(id, {
+        imageData,
+        imageMimeType,
+        imageUrl: null // Clear the URL since we're storing the image
+      });
+
+      if (!updatedPlant) {
+        return res.status(404).json({ message: "Plant not found" });
+      }
+
+      res.json({ message: "Image uploaded successfully", plant: updatedPlant });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+
+  // Route to serve stored images
+  app.get("/api/plants/:id/image", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const plant = await storage.getPlant(id);
+      
+      if (!plant) {
+        return res.status(404).json({ message: "Plant not found" });
+      }
+
+      if (!plant.imageData || !plant.imageMimeType) {
+        return res.status(404).json({ message: "No image found for this plant" });
+      }
+
+      // Convert base64 back to buffer and send
+      const imageBuffer = Buffer.from(plant.imageData, 'base64');
+      res.setHeader('Content-Type', plant.imageMimeType);
+      res.setHeader('Content-Length', imageBuffer.length);
+      res.send(imageBuffer);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve image" });
     }
   });
 

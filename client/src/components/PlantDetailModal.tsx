@@ -2,12 +2,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon, DropletIcon, TemperatureIcon, HumidityIcon, CheckCircleIcon, WarningIcon } from "./icons/PlantIcons";
-import { MapPin } from "lucide-react";
+import { MapPin, Upload } from "lucide-react";
 import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
+import { PlantImageUpload } from "./PlantImageUpload";
 
 interface PlantDetailModalProps {
-  plant: Plant & { growZones?: Array<{ zone: string }> };
+  plant: Plant & { 
+    growZones?: Array<{ zone: string }>;
+    imageData?: string;
+    imageMimeType?: string;
+  };
   isOpen: boolean;
   onClose: () => void;
   onAddToGarden?: (plant: Plant) => void;
@@ -15,6 +20,7 @@ interface PlantDetailModalProps {
 
 export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: PlantDetailModalProps) {
   const [isAddingToCollection, setIsAddingToCollection] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
   const { toast } = useToast();
   
   if (!isOpen) return null;
@@ -83,15 +89,48 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
           </div>
           
           <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/2">
+            <div className="md:w-1/2 relative">
               <img 
-                src={plant.imageUrl} 
+                src={plant.imageData && plant.imageMimeType 
+                  ? `data:${plant.imageMimeType};base64,${plant.imageData}`
+                  : plant.imageUrl || `/api/plants/${plant.id}/image`
+                } 
                 alt={plant.name} 
                 className="h-64 md:h-full w-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
                 }}
               />
+              
+              {/* Image upload button overlay */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                onClick={() => setShowImageUpload(!showImageUpload)}
+              >
+                <Upload className="w-4 h-4 mr-1" />
+                Upload
+              </Button>
+              
+              {/* Image upload component */}
+              {showImageUpload && (
+                <div className="absolute inset-0 bg-white/95 p-4 flex items-center justify-center">
+                  <div className="w-full max-w-sm">
+                    <PlantImageUpload
+                      plantId={plant.id}
+                      onImageUploaded={() => {
+                        setShowImageUpload(false);
+                        // Optionally refresh the plant data here
+                        toast({
+                          title: "Image updated",
+                          description: "Plant image has been updated successfully.",
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="md:w-1/2 p-6 custom-scrollbar" style={{ maxHeight: '80vh', overflowY: 'auto' }}>

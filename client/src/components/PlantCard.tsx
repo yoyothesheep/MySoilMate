@@ -4,12 +4,15 @@ import { SunIcon, DropletIcon } from "./icons/PlantIcons";
 import { MapPin } from "lucide-react";
 
 interface PlantCardProps {
-  plant: Plant & { growZones?: Array<{ zone: string }> };
+  plant: Plant & { 
+    growZones?: Array<{ zone: string }>;
+    imageData?: string;
+    imageMimeType?: string;
+  };
   onClick: () => void;
 }
 
 export function PlantCard({ plant, onClick }: PlantCardProps) {
-  
   // Format water needs for display
   const formatWaterNeeds = (waterNeeds: string): string => {
     switch (waterNeeds.toLowerCase()) {
@@ -23,11 +26,22 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
         return waterNeeds;
     }
   };
+
+  // Get image source - prioritize database images over URLs
+  const getImageSrc = () => {
+    if (plant.imageData && plant.imageMimeType) {
+      return `data:${plant.imageMimeType};base64,${plant.imageData}`;
+    }
+    if (plant.imageUrl) {
+      return plant.imageUrl;
+    }
+    return '/api/plants/' + plant.id + '/image';
+  };
   
   return (
     <div className="plant-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg">
       <img 
-        src={plant.imageUrl} 
+        src={getImageSrc()} 
         alt={plant.name} 
         className="h-56 w-full object-cover"
         onError={(e) => {
