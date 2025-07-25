@@ -64,12 +64,7 @@ export class DatabaseStorage implements IStorage {
         );
       }
       
-      // Difficulty levels filter
-      if (filter.difficultyLevels && filter.difficultyLevels.length > 0) {
-        filteredPlants = filteredPlants.filter(plant => 
-          filter.difficultyLevels!.includes(plant.difficultyLevel)
-        );
-      }
+
       
       // Grow zones filter
       if (filter.growZones && filter.growZones.length > 0) {
@@ -84,10 +79,6 @@ export class DatabaseStorage implements IStorage {
         switch (filter.sort) {
           case 'name':
             filteredPlants.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-          case 'difficulty':
-            const difficultyOrder = { 'beginner': 1, 'intermediate': 2, 'expert': 3 };
-            filteredPlants.sort((a, b) => difficultyOrder[a.difficultyLevel as keyof typeof difficultyOrder] - difficultyOrder[b.difficultyLevel as keyof typeof difficultyOrder]);
             break;
           case 'light':
             const lightOrder = { 'low': 1, 'medium': 2, 'bright': 3 };

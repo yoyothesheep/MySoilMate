@@ -1,16 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
-import { getDifficultyColor } from "@/lib/plantData";
 import { SunIcon, DropletIcon } from "./icons/PlantIcons";
 import { MapPin } from "lucide-react";
 
 interface PlantCardProps {
-  plant: Plant;
+  plant: Plant & { growZones?: Array<{ zone: string }> };
   onClick: () => void;
 }
 
 export function PlantCard({ plant, onClick }: PlantCardProps) {
-  const difficultyColor = getDifficultyColor(plant.difficultyLevel);
   
   // Format water needs for display
   const formatWaterNeeds = (waterNeeds: string): string => {
@@ -43,9 +41,6 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
             <h3 className="text-lg font-medium text-gray-900">{plant.name}</h3>
             <p className="text-sm text-gray-500 italic">{plant.scientificName}</p>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${difficultyColor}`}>
-            {plant.difficultyLevel.charAt(0).toUpperCase() + plant.difficultyLevel.slice(1)}
-          </span>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center">
@@ -58,7 +53,7 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
           </div>
           <div className="flex items-center">
             <MapPin className="text-green-600 mr-1 h-4 w-4" />
-            <span>Zone {plant.growZone}</span>
+            <span>Zones {plant.growZones ? plant.growZones.map(gz => gz.zone).join(', ') : 'N/A'}</span>
           </div>
         </div>
         <Button

@@ -15,7 +15,6 @@ export default function Home() {
     search: "",
     lightLevels: [],
     waterNeeds: [],
-    difficultyLevels: [],
     growZones: [],
     sort: "name"
   });
@@ -34,7 +33,7 @@ export default function Home() {
   };
   
   const handleFilterChange = (
-    filterType: 'lightLevels' | 'waterNeeds' | 'difficultyLevels' | 'growZones', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'growZones', 
     values: string[]
   ) => {
     setFilter(prev => ({ ...prev, [filterType]: values }));
@@ -45,7 +44,6 @@ export default function Home() {
       ...prev,
       lightLevels: [],
       waterNeeds: [],
-      difficultyLevels: [],
       growZones: []
     }));
   };

@@ -16,9 +16,7 @@ export function buildQueryString(filter: PlantFilter): string {
     params.append('waterNeeds', filter.waterNeeds.join(','));
   }
   
-  if (filter.difficultyLevels && filter.difficultyLevels.length > 0) {
-    params.append('difficultyLevels', filter.difficultyLevels.join(','));
-  }
+
   
   if (filter.growZones && filter.growZones.length > 0) {
     params.append('growZones', filter.growZones.join(','));
@@ -38,15 +36,4 @@ export async function addPlantToCollection(plantId: number): Promise<void> {
   return Promise.resolve();
 }
 
-export function getDifficultyColor(difficultyLevel: string): string {
-  switch (difficultyLevel.toLowerCase()) {
-    case 'beginner':
-      return 'bg-green-100 text-green-800';
-    case 'intermediate':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'expert':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-}
+

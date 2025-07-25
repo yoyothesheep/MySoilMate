@@ -9,7 +9,7 @@ interface FilterOption {
 
 interface PlantSidebarProps {
   onFilterChange: (
-    filterType: 'lightLevels' | 'waterNeeds' | 'difficultyLevels' | 'growZones', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'growZones', 
     values: string[]
   ) => void;
   onClearFilters: () => void;
@@ -29,11 +29,7 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     { id: 'water-high', label: 'High', value: 'high' }
   ];
   
-  const difficultyLevels: FilterOption[] = [
-    { id: 'difficulty-beginner', label: 'Beginner', value: 'beginner' },
-    { id: 'difficulty-intermediate', label: 'Intermediate', value: 'intermediate' },
-    { id: 'difficulty-expert', label: 'Expert', value: 'expert' }
-  ];
+
   
   const growZones: FilterOption[] = [
     { id: 'zone-3', label: 'Zone 3', value: '3' },
@@ -49,7 +45,6 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
   // State for selected filters
   const [selectedLightLevels, setSelectedLightLevels] = useState<string[]>([]);
   const [selectedWaterNeeds, setSelectedWaterNeeds] = useState<string[]>([]);
-  const [selectedDifficultyLevels, setSelectedDifficultyLevels] = useState<string[]>([]);
   const [selectedGrowZones, setSelectedGrowZones] = useState<string[]>([]);
   
   const handleLightLevelChange = (value: string) => {
@@ -70,14 +65,7 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     onFilterChange('waterNeeds', updatedNeeds);
   };
   
-  const handleDifficultyLevelChange = (value: string) => {
-    const updatedLevels = selectedDifficultyLevels.includes(value)
-      ? selectedDifficultyLevels.filter(level => level !== value)
-      : [...selectedDifficultyLevels, value];
-    
-    setSelectedDifficultyLevels(updatedLevels);
-    onFilterChange('difficultyLevels', updatedLevels);
-  };
+
   
   const handleGrowZoneChange = (value: string) => {
     const updatedZones = selectedGrowZones.includes(value)
@@ -91,7 +79,6 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
   const handleClearFilters = () => {
     setSelectedLightLevels([]);
     setSelectedWaterNeeds([]);
-    setSelectedDifficultyLevels([]);
     setSelectedGrowZones([]);
     onClearFilters();
   };
@@ -182,45 +169,7 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
             </div>
           </div>
           
-          {/* Difficulty Level Filter */}
-          <div className="mb-6">
-            <h3 className="font-medium text-sm text-gray-700 mb-3">Difficulty Level</h3>
-            <div className="space-y-2">
-              {difficultyLevels.map((level) => (
-                <div key={level.id} className="flex items-center">
-                  <input
-                    id={level.id}
-                    type="checkbox"
-                    className="filter-checkbox h-4 w-4 border-gray-300 rounded text-primary focus:ring-primary hidden"
-                    checked={selectedDifficultyLevels.includes(level.value)}
-                    onChange={() => handleDifficultyLevelChange(level.value)}
-                  />
-                  <label htmlFor={level.id} className="flex items-center cursor-pointer">
-                    <span 
-                      className={`h-5 w-5 border border-gray-300 rounded flex items-center justify-center mr-2 relative ${
-                        selectedDifficultyLevels.includes(level.value) ? 'bg-primary border-primary' : ''
-                      }`}
-                    >
-                      <span 
-                        className={`absolute inset-0 flex items-center justify-center ${
-                          selectedDifficultyLevels.includes(level.value) ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      >
-                        <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path 
-                            fillRule="evenodd" 
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                            clipRule="evenodd" 
-                          />
-                        </svg>
-                      </span>
-                    </span>
-                    <span className="text-sm text-gray-700">{level.label}</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
+
           
           {/* USDA Grow Zone Filter */}
           <div className="mb-6">

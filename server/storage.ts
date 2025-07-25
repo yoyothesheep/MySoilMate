@@ -85,10 +85,12 @@ export class MemStorage implements IStorage {
         );
       }
       
-      // Filter by difficulty levels
-      if (filter.difficultyLevels && filter.difficultyLevels.length > 0) {
+
+      
+      // Filter by grow zones
+      if (filter.growZones && filter.growZones.length > 0) {
         plants = plants.filter(plant => 
-          filter.difficultyLevels!.includes(plant.difficultyLevel)
+          plant.growZones.some(gz => filter.growZones!.includes(gz.zone))
         );
       }
       
@@ -97,14 +99,6 @@ export class MemStorage implements IStorage {
         switch (filter.sort) {
           case 'name':
             plants.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-          case 'difficulty':
-            // Sort by difficulty (beginner -> expert)
-            const difficultyOrder = { beginner: 1, intermediate: 2, expert: 3 };
-            plants.sort((a, b) => 
-              difficultyOrder[a.difficultyLevel as keyof typeof difficultyOrder] - 
-              difficultyOrder[b.difficultyLevel as keyof typeof difficultyOrder]
-            );
             break;
           case 'light':
             // Sort by light needs (low -> bright)
@@ -116,6 +110,14 @@ export class MemStorage implements IStorage {
                 b.lightLevel.toLowerCase().includes('medium') ? 'medium' : 'bright';
               return lightOrder[aLight as keyof typeof lightOrder] - 
                      lightOrder[bLight as keyof typeof lightOrder];
+            });
+            break;
+          case 'zone':
+            // Sort by lowest grow zone number
+            plants.sort((a, b) => {
+              const aLowestZone = Math.min(...a.growZones.map(gz => parseInt(gz.zone)));
+              const bLowestZone = Math.min(...b.growZones.map(gz => parseInt(gz.zone)));
+              return aLowestZone - bLowestZone;
             });
             break;
         }
@@ -159,7 +161,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Lavender_flowers.jpg/1200px-Lavender_flowers.jpg",
         lightLevel: "bright",
         waterNeeds: "low",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 5-9. Prefers temperatures between 60-80°F (15-27°C).",
         humidity: "Prefers dry conditions. Good air circulation is important.",
         careInstructions: "Plant in well-draining soil with full sun exposure. Water deeply but infrequently once established. Prune in early spring to maintain shape. Harvest flowers when they first bloom for the strongest fragrance.",
@@ -172,7 +173,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://extension.umd.edu/sites/extension.umd.edu/files/styles/optimized/public/2021-03/black-eyed-susan-rudbeckia.jpg",
         lightLevel: "bright",
         waterNeeds: "medium",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 3-9. Tolerates summer heat well.",
         humidity: "Adaptable to various humidity levels.",
         careInstructions: "Plant in well-draining soil in full sun. Water regularly until established, then only during prolonged dry spells. Deadhead spent blooms to encourage more flowers. Divide every 3-4 years to maintain vigor.",
@@ -185,7 +185,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://cdn.britannica.com/32/197432-050-DF9B15A9/flowers-Common-foxglove.jpg",
         lightLevel: "medium",
         waterNeeds: "medium",
-        difficultyLevel: "intermediate",
         temperature: "Hardy in zones 4-9. Prefers cool summers.",
         humidity: "Adaptable to average humidity levels.",
         careInstructions: "Plant in rich, well-draining soil in partial shade. Water regularly, especially during dry periods. Stake tall varieties to prevent flopping. Allow to self-seed for continuous plants or deadhead to prevent spreading.",
@@ -198,7 +197,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.naturehills.com/media/catalog/product/cache/3a5e947e0f566242390a54e26840d069/b/l/black-knight-butterfly-bush-overview-3.jpg",
         lightLevel: "bright",
         waterNeeds: "medium",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 5-9. Tolerates heat well.",
         humidity: "Adaptable to various humidity levels.",
         careInstructions: "Plant in well-draining soil in full sun. Water regularly until established, then only during dry spells. Prune back hard in early spring to maintain shape and encourage blooming.",
@@ -211,7 +209,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.thespruce.com/thmb/Kf-_D_C7kvCO0fYlz57cKtpfcmc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/plantain-lily-plants-hosta-1402844-07-fc41b84a98fe40249ea85cd122f36f23.jpg",
         lightLevel: "low",
         waterNeeds: "medium",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 3-9. Prefers moderate temperatures.",
         humidity: "Prefers moderate humidity.",
         careInstructions: "Plant in rich, well-draining soil in shade or partial shade. Water regularly, especially during dry periods. Divide every 4-5 years to maintain vigor. Apply mulch to retain moisture and suppress weeds.",
@@ -224,7 +221,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://hips.hearstapps.com/hmg-prod/images/close-up-of-perovskia-atriplicifolia-russian-sage-royalty-free-image-958113360-1563981908.jpg",
         lightLevel: "bright",
         waterNeeds: "low",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 4-9. Tolerates heat and cold well.",
         humidity: "Prefers dry conditions.",
         careInstructions: "Plant in lean, well-draining soil in full sun. Water occasionally until established, then rarely. Cut back to 6 inches in early spring to promote compact growth.",
@@ -237,7 +233,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.gardeningknowhow.com/wp-content/uploads/2023/02/echinacea-flower.jpg",
         lightLevel: "bright",
         waterNeeds: "low",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 3-9. Tolerates heat and humidity well.",
         humidity: "Adaptable to various humidity levels.",
         careInstructions: "Plant in well-draining soil in full sun. Water regularly until established, then only during prolonged dry spells. Deadhead spent blooms to encourage more flowers or leave for winter interest and bird food.",
@@ -250,7 +245,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.almanac.com/sites/default/files/styles/or/public/image_nodes/hydrangea-pink-planting-growing.jpg",
         lightLevel: "medium",
         waterNeeds: "high",
-        difficultyLevel: "intermediate",
         temperature: "Hardy in zones 6-9 (varies by variety). Prefers moderate temperatures.",
         humidity: "Prefers moderate to high humidity.",
         careInstructions: "Plant in rich, well-draining soil in morning sun and afternoon shade. Water deeply and regularly, especially in dry periods. Prune after flowering or in early spring, depending on variety. Add aluminum sulfate to soil for blue flowers or lime for pink (in bigleaf varieties).",
@@ -263,7 +257,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://extension.umn.edu/sites/extension.umn.edu/files/styles/large/public/Purple%20miscanthus.jpg",
         lightLevel: "bright",
         waterNeeds: "low",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 5-9 (varies by variety). Tolerates heat and cold well.",
         humidity: "Adaptable to various humidity levels.",
         careInstructions: "Plant in well-draining soil in full sun. Water occasionally until established, then rarely. Cut back to a few inches above ground in late winter before new growth emerges.",
@@ -276,7 +269,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.highcountrygardens.com/media/catalog/product/s/e/sedum_autumn_joy_1.jpg",
         lightLevel: "bright",
         waterNeeds: "low",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 3-9. Tolerates heat and drought well.",
         humidity: "Prefers dry conditions.",
         careInstructions: "Plant in well-draining soil in full sun. Water occasionally until established, then rarely. Divide every 3-4 years to maintain vigor. Leave seedheads for winter interest or cut back in early spring.",
@@ -289,7 +281,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.thespruce.com/thmb/kHtxU1zNLWuP9YCqB7Kg9l-haIM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/grow-daylily-plants-1402714-01-555394bb5fc94624bd90a1a4c9dd21e6.jpg",
         lightLevel: "bright",
         waterNeeds: "medium",
-        difficultyLevel: "beginner",
         temperature: "Hardy in zones 3-9. Tolerates heat and humidity well.",
         humidity: "Adaptable to various humidity levels.",
         careInstructions: "Plant in well-draining soil in full sun to light shade. Water regularly until established, then only during prolonged dry spells. Divide every 3-5 years to maintain vigor. Remove spent flower stalks to prevent seeding.",
@@ -302,7 +293,6 @@ export class MemStorage implements IStorage {
         imageUrl: "https://www.thespruce.com/thmb/fBHI3rr48-U-UZ2dXMVwTmAUfRY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/grow-azaleas-successfully-1402812-01-5e3a3ae1a45d4e809f97196c30416d2a.jpg",
         lightLevel: "medium",
         waterNeeds: "medium",
-        difficultyLevel: "intermediate",
         temperature: "Hardy in zones 4-9 (varies by variety). Prefers moderate temperatures.",
         humidity: "Prefers moderate humidity.",
         careInstructions: "Plant in acidic, well-draining soil in dappled shade. Water regularly, especially during dry periods. Mulch to retain moisture and suppress weeds. Prune after flowering if needed.",

@@ -7,7 +7,7 @@ import { addPlantToCollection } from "@/lib/plantData";
 import { useToast } from "@/hooks/use-toast";
 
 interface PlantDetailModalProps {
-  plant: Plant;
+  plant: Plant & { growZones?: Array<{ zone: string }> };
   isOpen: boolean;
   onClose: () => void;
   onAddToGarden?: (plant: Plant) => void;
@@ -99,17 +99,6 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
               <p className="text-sm italic text-gray-600 mb-4">{plant.scientificName}</p>
               
               <div className="mb-6">
-                <span 
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    plant.difficultyLevel === 'beginner' ? 'bg-green-100 text-green-800' : 
-                    plant.difficultyLevel === 'intermediate' ? 'bg-yellow-100 text-yellow-800' : 
-                    'bg-red-100 text-red-800'
-                  } mb-4`}
-                >
-                  {plant.difficultyLevel === 'beginner' ? 'Beginner Friendly' : 
-                   plant.difficultyLevel === 'intermediate' ? 'Intermediate' : 
-                   'Expert Level'}
-                </span>
                 <p className="text-gray-700 mb-4">{plant.description}</p>
               </div>
               
@@ -144,7 +133,7 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                     USDA Grow Zone
                   </div>
                   <p className="text-sm text-gray-600">
-                    Zone {plant.growZone}. This plant is suitable for USDA hardiness zones {plant.growZone}.
+                    Zones {plant.growZones ? plant.growZones.map(gz => gz.zone).join(', ') : 'N/A'}. This plant is suitable for these USDA hardiness zones.
                   </p>
                 </div>
                 

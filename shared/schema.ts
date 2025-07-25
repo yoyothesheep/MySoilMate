@@ -27,7 +27,6 @@ export const plants = pgTable("plants", {
   imageUrl: text("image_url").notNull(),
   lightLevel: text("light_level").notNull(), // 'low', 'medium', 'bright'
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
-  difficultyLevel: text("difficulty_level").notNull(), // 'beginner', 'intermediate', 'expert'
   temperature: text("temperature"),
   humidity: text("humidity"),
   careInstructions: text("care_instructions"),
@@ -68,7 +67,6 @@ export type GrowZone = typeof growZones.$inferSelect;
 
 export type LightLevel = 'low' | 'medium' | 'bright';
 export type WaterNeeds = 'low' | 'medium' | 'high';
-export type DifficultyLevel = 'beginner' | 'intermediate' | 'expert';
 export type ZoneNumber = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12' | '13';
 
 // Type for plant with grow zones included
@@ -80,9 +78,8 @@ export const plantFilterSchema = z.object({
   search: z.string().optional(),
   lightLevels: z.array(z.string()).optional(),
   waterNeeds: z.array(z.string()).optional(),
-  difficultyLevels: z.array(z.string()).optional(),
   growZones: z.array(z.string()).optional(),
-  sort: z.enum(['name', 'difficulty', 'light', 'zone']).optional(),
+  sort: z.enum(['name', 'light', 'zone']).optional(),
 });
 
 export type PlantFilter = z.infer<typeof plantFilterSchema>;
