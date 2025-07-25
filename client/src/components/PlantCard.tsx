@@ -5,9 +5,7 @@ import { MapPin } from "lucide-react";
 
 interface PlantCardProps {
   plant: Plant & { 
-    growZones?: Array<{ zone: string }>;
-    imageData?: string;
-    imageMimeType?: string;
+    plantZones?: Array<{ zone: { zone: string } }>;
   };
   onClick: () => void;
 }
@@ -27,15 +25,10 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
     }
   };
 
-  // Get image source - prioritize database images over URLs
+  // Get image source - use API endpoint first, fallback to URL
   const getImageSrc = () => {
-    if (plant.imageData && plant.imageMimeType) {
-      return `data:${plant.imageMimeType};base64,${plant.imageData}`;
-    }
-    if (plant.imageUrl) {
-      return plant.imageUrl;
-    }
-    return '/api/plants/' + plant.id + '/image';
+    // Always try the API endpoint first (this will serve database images)
+    return `/api/plants/${plant.id}/image`;
   };
   
   return (
@@ -45,8 +38,13 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
         alt={plant.name} 
         className="h-56 w-full object-cover"
         onError={(e) => {
-          // Fallback image if the plant image fails to load
-          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
+          // If API endpoint fails, try the original imageUrl, then fallback
+          const img = e.target as HTMLImageElement;
+          if (img.src.includes('/api/plants/') && plant.imageUrl) {
+            img.src = plant.imageUrl;
+          } else {
+            img.src = 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
+          }
         }}
       />
       <div className="p-4">
@@ -67,7 +65,7 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
           </div>
           <div className="flex items-center">
             <MapPin className="text-green-600 mr-1 h-4 w-4" />
-            <span>Zones {plant.growZones ? plant.growZones.map(gz => gz.zone).join(', ') : 'N/A'}</span>
+            <span>Zones {plant.plantZones ? plant.plantZones.map(pz => pz.zone.zone).join(', ') : 'N/A'}</span>
           </div>
         </div>
         <Button

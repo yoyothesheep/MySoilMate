@@ -9,9 +9,7 @@ import { PlantImageUpload } from "./PlantImageUpload";
 
 interface PlantDetailModalProps {
   plant: Plant & { 
-    growZones?: Array<{ zone: string }>;
-    imageData?: string;
-    imageMimeType?: string;
+    plantZones?: Array<{ zone: { zone: string } }>;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -91,14 +89,16 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 relative">
               <img 
-                src={plant.imageData && plant.imageMimeType 
-                  ? `data:${plant.imageMimeType};base64,${plant.imageData}`
-                  : plant.imageUrl || `/api/plants/${plant.id}/image`
-                } 
+                src={`/api/plants/${plant.id}/image`}
                 alt={plant.name} 
                 className="h-64 md:h-full w-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
+                  const img = e.target as HTMLImageElement;
+                  if (img.src.includes('/api/plants/') && plant.imageUrl) {
+                    img.src = plant.imageUrl;
+                  } else {
+                    img.src = 'https://via.placeholder.com/400x500?text=Plant+Image+Unavailable';
+                  }
                 }}
               />
               
@@ -121,7 +121,11 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                       plantId={plant.id}
                       onImageUploaded={() => {
                         setShowImageUpload(false);
-                        // Optionally refresh the plant data here
+                        // Force image refresh by updating the src with timestamp
+                        const img = document.querySelector(`img[alt="${plant.name}"]`) as HTMLImageElement;
+                        if (img) {
+                          img.src = `/api/plants/${plant.id}/image?t=${Date.now()}`;
+                        }
                         toast({
                           title: "Image updated",
                           description: "Plant image has been updated successfully.",
@@ -172,7 +176,7 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                     USDA Grow Zone
                   </div>
                   <p className="text-sm text-gray-600">
-                    Zones {plant.growZones ? plant.growZones.map(gz => gz.zone).join(', ') : 'N/A'}. This plant is suitable for these USDA hardiness zones.
+                    Zones {plant.plantZones ? plant.plantZones.map(pz => pz.zone.zone).join(', ') : 'N/A'}. This plant is suitable for these USDA hardiness zones.
                   </p>
                 </div>
                 
