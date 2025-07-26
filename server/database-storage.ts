@@ -2,7 +2,8 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
   type PlantFilter, type PlantWithZones,
-  zones, plantZones, type PaginatedPlantsResponse
+  zones, plantZones, bloomSeasons, plantBloomSeasons,
+  type PaginatedPlantsResponse, type InsertBloomSeason, type InsertPlantBloomSeason
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and, inArray } from "drizzle-orm";
@@ -30,12 +31,17 @@ export class DatabaseStorage implements IStorage {
 
   // Plant methods
   async getPlants(filter?: PlantFilter): Promise<PaginatedPlantsResponse> {
-    // Get plants with their grow zones using relations
+    // Get plants with their grow zones and bloom seasons using relations
     const plantsWithZones = await db.query.plants.findMany({
       with: {
         plantZones: {
           with: {
             zone: true
+          }
+        },
+        plantBloomSeasons: {
+          with: {
+            bloomSeason: true
           }
         }
       }
@@ -81,7 +87,8 @@ export class DatabaseStorage implements IStorage {
       // Bloom season filter
       if (filter.bloomSeasons && filter.bloomSeasons.length > 0) {
         filteredPlants = filteredPlants.filter(plant => {
-          return filter.bloomSeasons!.some(season => plant.bloomSeason.includes(season));
+          const plantBloomSeasons = plant.plantBloomSeasons.map(pbs => pbs.bloomSeason.season);
+          return filter.bloomSeasons!.some(season => plantBloomSeasons.includes(season));
         });
       }
 
@@ -163,6 +170,11 @@ export class DatabaseStorage implements IStorage {
           with: {
             zone: true
           }
+        },
+        plantBloomSeasons: {
+          with: {
+            bloomSeason: true
+          }
         }
       }
     });
@@ -203,6 +215,17 @@ export class DatabaseStorage implements IStorage {
     
     // Only seed if the database is empty
     if (existingPlants.length === 0) {
+      // First, seed bloom seasons
+      const bloomSeasonsData: InsertBloomSeason[] = [
+        { season: "Spring", description: "March to May flowering period" },
+        { season: "Summer", description: "June to August flowering period" },
+        { season: "Fall", description: "September to November flowering period" },
+        { season: "Winter", description: "December to February flowering period" }
+      ];
+
+      for (const bloomSeasonData of bloomSeasonsData) {
+        await db.insert(bloomSeasons).values(bloomSeasonData).onConflictDoNothing();
+      }
       const plantData: InsertPlant[] = [
         {
           name: "Lavender",
@@ -211,7 +234,6 @@ export class DatabaseStorage implements IStorage {
           imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Lavender_flowers.jpg/1200px-Lavender_flowers.jpg",
           lightLevel: "bright",
           waterNeeds: "low",
-          bloomSeason: "Summer",
           bloomTime: "Mid to late summer, with peak bloom in July and August",
           height: "18-24 inches",
           width: "18-24 inches",
@@ -227,7 +249,6 @@ export class DatabaseStorage implements IStorage {
           imageUrl: "https://extension.umd.edu/sites/extension.umd.edu/files/styles/optimized/public/2021-03/black-eyed-susan-rudbeckia.jpg",
           lightLevel: "bright",
           waterNeeds: "medium",
-          bloomSeason: "Summer-Fall",
           bloomTime: "Blooms from midsummer through fall, lasting 6-8 weeks",
           height: "24-36 inches",
           width: "18-24 inches",
@@ -243,7 +264,6 @@ export class DatabaseStorage implements IStorage {
           imageUrl: "https://cdn.britannica.com/32/197432-050-DF9B15A9/flowers-Common-foxglove.jpg",
           lightLevel: "medium",
           waterNeeds: "medium",
-          bloomSeason: "Late Spring-Summer",
           bloomTime: "Flowers from late spring through early summer, typically May to July",
           height: "4-6 feet",
           width: "12-18 inches",
@@ -259,7 +279,6 @@ export class DatabaseStorage implements IStorage {
           imageUrl: "https://www.naturehills.com/media/catalog/product/cache/3a5e947e0f566242390a54e26840d069/b/l/black-knight-butterfly-bush-overview-3.jpg",
           lightLevel: "bright",
           waterNeeds: "medium",
-          bloomSeason: "Summer-Fall",
           bloomTime: "Continuous blooms from summer through first frost",
           height: "6-8 feet",
           width: "4-6 feet",
@@ -275,7 +294,6 @@ export class DatabaseStorage implements IStorage {
           imageUrl: "https://www.thespruce.com/thmb/Kf-_D_C7kvCO0fYlz57cKtpfcmc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/plantain-lily-plants-hosta-1402844-07-fc41b84a98fe40249ea85cd122f36f23.jpg",
           lightLevel: "low",
           waterNeeds: "medium",
-          bloomSeason: "Summer",
           bloomTime: "Tall flower stalks appear in mid to late summer",
           height: "12-36 inches",
           width: "18-48 inches",
@@ -286,11 +304,93 @@ export class DatabaseStorage implements IStorage {
         }
       ];
       
-      // Insert plants in batches to avoid potential issues with large datasets
-      for (const plant of plantData) {
-        await this.createPlant(plant);
+      // Insert all zone data first
+      const zoneData = [
+        { zone: "3a" }, { zone: "3b" }, { zone: "4a" }, { zone: "4b" },
+        { zone: "5a" }, { zone: "5b" }, { zone: "6a" }, { zone: "6b" },
+        { zone: "7a" }, { zone: "7b" }, { zone: "8a" }, { zone: "8b" },
+        { zone: "9a" }, { zone: "9b" }
+      ];
+
+      for (const zone of zoneData) {
+        await db.insert(zones).values(zone).onConflictDoNothing();
       }
-      console.log('Database seeded with garden plants including bloom data');
+
+      // Insert all plants
+      for (const plant of plantData) {
+        await db.insert(plants).values(plant);
+      }
+
+      // Get bloom season IDs for relationships
+      const [springSeason] = await db.select().from(bloomSeasons).where(eq(bloomSeasons.season, "Spring"));
+      const [summerSeason] = await db.select().from(bloomSeasons).where(eq(bloomSeasons.season, "Summer"));
+      const [fallSeason] = await db.select().from(bloomSeasons).where(eq(bloomSeasons.season, "Fall"));
+
+      // Define plant-bloom season relationships
+      const plantBloomSeasonData: InsertPlantBloomSeason[] = [
+        // Lavender - Summer
+        { plantId: 1, bloomSeasonId: summerSeason.id },
+        
+        // Black-Eyed Susan - Summer and Fall
+        { plantId: 2, bloomSeasonId: summerSeason.id },
+        { plantId: 2, bloomSeasonId: fallSeason.id },
+        
+        // Foxglove - Spring and Summer  
+        { plantId: 3, bloomSeasonId: springSeason.id },
+        { plantId: 3, bloomSeasonId: summerSeason.id },
+        
+        // Butterfly Bush - Summer and Fall
+        { plantId: 4, bloomSeasonId: summerSeason.id },
+        { plantId: 4, bloomSeasonId: fallSeason.id },
+        
+        // Hosta - Summer
+        { plantId: 5, bloomSeasonId: summerSeason.id }
+      ];
+
+      // Insert plant-bloom season relationships
+      for (const plantBloomSeason of plantBloomSeasonData) {
+        await db.insert(plantBloomSeasons).values(plantBloomSeason);
+      }
+
+      // Define plant-zone relationships
+      const plantZoneData = [
+        // Lavender - zones 5a to 9a
+        { plantId: 1, zoneId: 5 }, { plantId: 1, zoneId: 6 }, { plantId: 1, zoneId: 7 },
+        { plantId: 1, zoneId: 8 }, { plantId: 1, zoneId: 9 }, { plantId: 1, zoneId: 10 },
+        { plantId: 1, zoneId: 11 }, { plantId: 1, zoneId: 12 }, { plantId: 1, zoneId: 13 },
+        
+        // Black-Eyed Susan - zones 3a to 9a
+        { plantId: 2, zoneId: 1 }, { plantId: 2, zoneId: 2 }, { plantId: 2, zoneId: 3 },
+        { plantId: 2, zoneId: 4 }, { plantId: 2, zoneId: 5 }, { plantId: 2, zoneId: 6 },
+        { plantId: 2, zoneId: 7 }, { plantId: 2, zoneId: 8 }, { plantId: 2, zoneId: 9 },
+        { plantId: 2, zoneId: 10 }, { plantId: 2, zoneId: 11 }, { plantId: 2, zoneId: 12 },
+        { plantId: 2, zoneId: 13 },
+        
+        // Foxglove - zones 4a to 9a
+        { plantId: 3, zoneId: 3 }, { plantId: 3, zoneId: 4 }, { plantId: 3, zoneId: 5 },
+        { plantId: 3, zoneId: 6 }, { plantId: 3, zoneId: 7 }, { plantId: 3, zoneId: 8 },
+        { plantId: 3, zoneId: 9 }, { plantId: 3, zoneId: 10 }, { plantId: 3, zoneId: 11 },
+        { plantId: 3, zoneId: 12 }, { plantId: 3, zoneId: 13 },
+        
+        // Butterfly Bush - zones 5a to 9a
+        { plantId: 4, zoneId: 5 }, { plantId: 4, zoneId: 6 }, { plantId: 4, zoneId: 7 },
+        { plantId: 4, zoneId: 8 }, { plantId: 4, zoneId: 9 }, { plantId: 4, zoneId: 10 },
+        { plantId: 4, zoneId: 11 }, { plantId: 4, zoneId: 12 }, { plantId: 4, zoneId: 13 },
+        
+        // Hosta - zones 3a to 9a
+        { plantId: 5, zoneId: 1 }, { plantId: 5, zoneId: 2 }, { plantId: 5, zoneId: 3 },
+        { plantId: 5, zoneId: 4 }, { plantId: 5, zoneId: 5 }, { plantId: 5, zoneId: 6 },
+        { plantId: 5, zoneId: 7 }, { plantId: 5, zoneId: 8 }, { plantId: 5, zoneId: 9 },
+        { plantId: 5, zoneId: 10 }, { plantId: 5, zoneId: 11 }, { plantId: 5, zoneId: 12 },
+        { plantId: 5, zoneId: 13 }
+      ];
+
+      // Insert plant-zone relationships
+      for (const plantZone of plantZoneData) {
+        await db.insert(plantZones).values(plantZone);
+      }
+
+      console.log('Database seeded with garden plants including bloom season data');
     }
   }
 }

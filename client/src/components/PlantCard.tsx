@@ -6,6 +6,7 @@ import { Sprout, Flower } from "lucide-react";
 interface PlantCardProps {
   plant: Plant & { 
     plantZones?: Array<{ zone: { zone: string } }>;
+    plantBloomSeasons?: Array<{ bloomSeason: { season: string } }>;
   };
   onClick: () => void;
 }
@@ -52,7 +53,9 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
           </div>
           <div className="flex items-center">
             <Flower className="text-pink-500 mr-1 h-4 w-4" />
-            <span>{formatBloomSeason(plant.bloomSeason || 'Spring-Summer')}</span>
+            <span>
+              {plant.plantBloomSeasons?.map(pbs => pbs.bloomSeason.season).join(", ") || "N/A"}
+            </span>
           </div>
           <div className="flex items-center">
             <Sprout className="text-green-600 mr-1 h-4 w-4" />
