@@ -16,10 +16,16 @@ export function buildQueryString(filter: PlantFilter): string {
     params.append('waterNeeds', filter.waterNeeds.join(','));
   }
   
-
-  
   if (filter.growZones && filter.growZones.length > 0) {
     params.append('growZones', filter.growZones.join(','));
+  }
+  
+  if (filter.bloomSeasons && filter.bloomSeasons.length > 0) {
+    params.append('bloomSeasons', filter.bloomSeasons.join(','));
+  }
+  
+  if (filter.heights && filter.heights.length > 0) {
+    params.append('heights', filter.heights.join(','));
   }
   
   if (filter.sort) {
