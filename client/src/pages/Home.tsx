@@ -103,6 +103,18 @@ export default function Home() {
         onOpenGardenDesigner={handleOpenGardenDesigner} 
       />
       
+      {/* Hero Header Section */}
+      <section className="bg-gradient-to-br from-green-400 via-yellow-300 to-pink-300 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+            Garden Designer
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+            Discover outdoor plants and design your perfect garden layout with our interactive garden visualizer.
+          </p>
+        </div>
+      </section>
+      
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-6">
           {selectedPlants.length > 0 && (
