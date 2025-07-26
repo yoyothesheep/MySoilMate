@@ -175,17 +175,7 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                     <TemperatureIcon className="text-red-500 mr-2 h-5 w-5" />
                     Hardiness Zone
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Zones {plant.plantZones ? plant.plantZones.map(pz => pz.zone.zone).join(', ') : 'N/A'}. This plant is suitable for these USDA hardiness zones.
-                  </p>
-                </div>
-                
-                <div className="bg-gray-50 p-3 rounded-lg col-span-2">
-                  <div className="flex items-center text-gray-700 font-medium mb-2">
-                    <HumidityIcon className="text-green-500 mr-2 h-5 w-5" />
-                    Humidity
-                  </div>
-                  <p className="text-sm text-gray-600">{plant.humidity || 'Adapts to normal outdoor humidity levels. Consider additional watering during dry periods.'}</p>
+                  <p className="text-sm text-gray-600">{plant.temperature || 'Prefers temperatures between 65-80°F (18-27°C). Avoid cold drafts and sudden temperature changes.'}</p>
                 </div>
               </div>
               
