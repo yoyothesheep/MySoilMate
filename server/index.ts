@@ -39,10 +39,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed the database with garden plants from High Line, Proven Winners, and Bluestone Perennials
+  // Seed the database with garden plants including bloom data
   try {
-    await storage.seedPlants(gardenPlantData);
-    log('Successfully seeded database with garden plants');
+    if ('seedPlants' in storage && typeof storage.seedPlants === 'function') {
+      await storage.seedPlants();
+      log('Successfully seeded database with garden plants');
+    }
   } catch (error) {
     log(`Error seeding database: ${error}`);
   }

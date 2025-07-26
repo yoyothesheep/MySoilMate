@@ -160,7 +160,9 @@ export class MemStorage implements IStorage {
     
     const updatedPlantWithZones = { ...existingPlant, ...updatePlant };
     this.plants.set(id, updatedPlantWithZones);
-    return { ...updatedPlantWithZones, plantZones: undefined } as Plant;
+    // Fix type compatibility
+    const { plantZones, ...plantData } = updatedPlantWithZones;
+    return plantData;
   }
 
   async deletePlant(id: number): Promise<boolean> {
@@ -345,5 +347,6 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use memory storage for now while database connection is being fixed
-export const storage = new MemStorage();
+// Use database storage
+import { DatabaseStorage } from './database-storage';
+export const storage = new DatabaseStorage();

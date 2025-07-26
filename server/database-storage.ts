@@ -161,18 +161,91 @@ export class DatabaseStorage implements IStorage {
     return !!deletedPlant;
   }
 
-  // Seed function to populate the database
-  async seedPlants(plantData: InsertPlant[]): Promise<void> {
+  // Seed function to populate the database with bloom data
+  async seedPlants(): Promise<void> {
     // First check if the database is already populated
     const existingPlants = await db.select().from(plants).limit(1);
     
     // Only seed if the database is empty
     if (existingPlants.length === 0) {
+      const plantData: InsertPlant[] = [
+        {
+          name: "Lavender",
+          scientificName: "Lavandula",
+          description: "Lavender is a fragrant perennial with silvery-gray foliage and purple flowers. It's deer-resistant, drought-tolerant, and attracts pollinators to the garden.",
+          imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Lavender_flowers.jpg/1200px-Lavender_flowers.jpg",
+          lightLevel: "bright",
+          waterNeeds: "low",
+          bloomSeason: "Summer",
+          bloomTime: "Mid to late summer, with peak bloom in July and August",
+          temperature: "Hardy in zones 5-9. Prefers temperatures between 60-80°F (15-27°C).",
+          humidity: "Prefers dry conditions. Good air circulation is important.",
+          careInstructions: "Plant in well-draining soil with full sun exposure. Water deeply but infrequently once established. Prune in early spring to maintain shape. Harvest flowers when they first bloom for the strongest fragrance.",
+          commonIssues: "Root Rot: Usually caused by overwatering or poor drainage. Powdery Mildew: Often appears in humid conditions with poor air circulation."
+        },
+        {
+          name: "Black-Eyed Susan",
+          scientificName: "Rudbeckia hirta",
+          description: "Black-Eyed Susan is a cheerful wildflower with golden-yellow petals and dark brown centers. It's a robust, low-maintenance addition to any garden.",
+          imageUrl: "https://extension.umd.edu/sites/extension.umd.edu/files/styles/optimized/public/2021-03/black-eyed-susan-rudbeckia.jpg",
+          lightLevel: "bright",
+          waterNeeds: "medium",
+          bloomSeason: "Summer-Fall",
+          bloomTime: "Blooms from midsummer through fall, lasting 6-8 weeks",
+          temperature: "Hardy in zones 3-9. Tolerates summer heat well.",
+          humidity: "Adaptable to various humidity levels.",
+          careInstructions: "Plant in well-draining soil in full sun. Water regularly until established, then only during prolonged dry spells. Deadhead spent blooms to encourage more flowers. Divide every 3-4 years to maintain vigor.",
+          commonIssues: "Powdery Mildew: Can develop in humid conditions. Leaf Spot: Often appears in wet conditions or with overcrowding."
+        },
+        {
+          name: "Foxglove",
+          scientificName: "Digitalis",
+          description: "Foxglove produces tall spikes of tubular flowers in various colors. It's a classic cottage garden plant that adds height and drama to borders.",
+          imageUrl: "https://cdn.britannica.com/32/197432-050-DF9B15A9/flowers-Common-foxglove.jpg",
+          lightLevel: "medium",
+          waterNeeds: "medium",
+          bloomSeason: "Late Spring-Summer",
+          bloomTime: "Flowers from late spring through early summer, typically May to July",
+          temperature: "Hardy in zones 4-9. Prefers cool summers.",
+          humidity: "Adaptable to average humidity levels.",
+          careInstructions: "Plant in rich, well-draining soil in partial shade. Water regularly, especially during dry periods. Stake tall varieties to prevent flopping. Allow to self-seed for continuous plants or deadhead to prevent spreading.",
+          commonIssues: "Crown Rot: Usually caused by wet, heavy soils. Leaf Spot: Often appears in wet, humid conditions. Note: All parts are toxic if ingested."
+        },
+        {
+          name: "Butterfly Bush",
+          scientificName: "Buddleja davidii",
+          description: "Butterfly Bush features cone-shaped clusters of fragrant flowers that attract butterflies and hummingbirds. It's a fast-growing shrub with arching branches.",
+          imageUrl: "https://www.naturehills.com/media/catalog/product/cache/3a5e947e0f566242390a54e26840d069/b/l/black-knight-butterfly-bush-overview-3.jpg",
+          lightLevel: "bright",
+          waterNeeds: "medium",
+          bloomSeason: "Summer-Fall",
+          bloomTime: "Continuous blooms from summer through first frost",
+          temperature: "Hardy in zones 5-9. Tolerates heat well.",
+          humidity: "Adaptable to various humidity levels.",
+          careInstructions: "Plant in well-draining soil in full sun. Water regularly until established, then only during dry spells. Prune back hard in early spring to maintain shape and encourage blooming.",
+          commonIssues: "Spider Mites: Can occur during hot, dry conditions. Root Rot: Usually caused by poor drainage. Note: Can be invasive in some regions."
+        },
+        {
+          name: "Hosta",
+          scientificName: "Hosta spp.",
+          description: "Hostas are shade-loving perennials grown primarily for their attractive foliage in various colors, sizes, and textures. They're perfect for adding interest to shady spots.",
+          imageUrl: "https://www.thespruce.com/thmb/Kf-_D_C7kvCO0fYlz57cKtpfcmc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/plantain-lily-plants-hosta-1402844-07-fc41b84a98fe40249ea85cd122f36f23.jpg",
+          lightLevel: "low",
+          waterNeeds: "medium",
+          bloomSeason: "Summer",
+          bloomTime: "Tall flower stalks appear in mid to late summer",
+          temperature: "Hardy in zones 3-9. Prefers moderate temperatures.",
+          humidity: "Prefers moderate humidity.",
+          careInstructions: "Plant in rich, well-draining soil in shade or partial shade. Water regularly, especially during dry periods. Divide every 4-5 years to maintain vigor. Apply mulch to retain moisture and suppress weeds.",
+          commonIssues: "Slug Damage: Usually affects leaves, especially in wet conditions. Deer Browsing: Often a favorite food for deer."
+        }
+      ];
+      
       // Insert plants in batches to avoid potential issues with large datasets
       for (const plant of plantData) {
         await this.createPlant(plant);
       }
-      console.log('Database seeded with garden plants');
+      console.log('Database seeded with garden plants including bloom data');
     }
   }
 }
