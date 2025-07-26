@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface FilterOption {
   id: string;
@@ -13,9 +14,17 @@ interface PlantSidebarProps {
     values: string[]
   ) => void;
   onClearFilters: () => void;
+  onSearch: (search: string) => void;
 }
 
-export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarProps) {
+export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: PlantSidebarProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    onSearch(value);
+  };
   // Filter option definitions
   const lightLevels: FilterOption[] = [
     { id: 'light-low', label: 'Low Light', value: 'low' },
@@ -122,7 +131,36 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     <div className="w-full md:w-64 flex-shrink-0">
       <div className="bg-white rounded-lg shadow overflow-hidden sticky top-20">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Filters</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Search & Filters</h2>
+          
+          {/* Search Box */}
+          <div className="mb-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <Input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2 rounded-md text-sm bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
+                placeholder="Search plants..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </div>
           
           {/* Light Level Filter */}
           <div className="mb-6">

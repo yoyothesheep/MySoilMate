@@ -98,10 +98,7 @@ export default function Home() {
   
   return (
     <div className="min-h-screen flex flex-col bg-neutral-light">
-      <PlantHeader 
-        onSearch={handleSearch} 
-        onOpenGardenDesigner={handleOpenGardenDesigner} 
-      />
+      <PlantHeader />
       
       {/* Hero Header Section */}
       <section className="bg-gradient-to-br from-green-400 via-yellow-300 to-pink-300 py-16 px-4 sm:px-6 lg:px-8">
@@ -163,6 +160,7 @@ export default function Home() {
             <PlantSidebar 
               onFilterChange={handleFilterChange}
               onClearFilters={handleClearFilters}
+              onSearch={handleSearch}
             />
             
             <PlantGrid 
