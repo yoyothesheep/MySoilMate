@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { SunIcon } from "./icons/PlantIcons";
-import { MapPin, Flower } from "lucide-react";
+import { Sprout, Flower } from "lucide-react";
 
 interface PlantCardProps {
   plant: Plant & { 
@@ -55,8 +55,8 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
             <span>{formatBloomSeason(plant.bloomSeason || 'Spring-Summer')}</span>
           </div>
           <div className="flex items-center">
-            <MapPin className="text-green-600 mr-1 h-4 w-4" />
-            <span>Zones {plant.plantZones ? plant.plantZones.map(pz => pz.zone.zone).join(', ') : 'N/A'}</span>
+            <Sprout className="text-green-600 mr-1 h-4 w-4" />
+            <span>{plant.height || 'Height varies'}</span>
           </div>
         </div>
         <Button

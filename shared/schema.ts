@@ -31,6 +31,8 @@ export const plants = pgTable("plants", {
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
   bloomSeason: text("bloom_season").notNull(), // 'Spring', 'Summer', 'Fall', 'Winter' or combinations
   bloomTime: text("bloom_time").notNull(), // Descriptive text about bloom timing
+  height: text("height").notNull(), // Plant height at maturity
+  width: text("width").notNull(), // Plant width/spread at maturity
   temperature: text("temperature"),
   humidity: text("humidity"),
   careInstructions: text("care_instructions"),
