@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plant } from "@shared/schema";
 import { PlantCard } from "./PlantCard";
 import { PlantDetailModal } from "./PlantDetailModal";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 
 interface PlantGridProps {
@@ -11,7 +11,6 @@ interface PlantGridProps {
   isLoading: boolean;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
-  onSortChange: (sortOption: string) => void;
   onAddPlantToSelection?: (plant: Plant) => void;
   onLoadMore: () => void;
 }
@@ -22,7 +21,6 @@ export function PlantGrid({
   isLoading, 
   isFetchingNextPage, 
   hasNextPage, 
-  onSortChange, 
   onAddPlantToSelection, 
   onLoadMore 
 }: PlantGridProps) {
@@ -38,9 +36,7 @@ export function PlantGrid({
     setIsModalOpen(false);
   };
   
-  const handleSortChange = (value: string) => {
-    onSortChange(value);
-  };
+
 
   const handleAddToGarden = (plant: Plant) => {
     if (onAddPlantToSelection) {
@@ -51,23 +47,10 @@ export function PlantGrid({
   return (
     <div className="flex-1">
       {/* Results Summary */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <h1 className="text-xl font-semibold text-gray-900">
           {isLoading ? "Loading plants..." : `${plants.length} of ${totalCount} Garden Plants`}
         </h1>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Sort by:</span>
-          <Select onValueChange={handleSortChange} defaultValue="name">
-            <SelectTrigger className="w-[160px] text-sm border-gray-300 rounded-md focus:border-primary focus:ring-primary h-9">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name (A-Z)</SelectItem>
-              <SelectItem value="light">Light Needs</SelectItem>
-              <SelectItem value="zone">USDA Grow Zone</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
       
       {/* Plant Grid */}

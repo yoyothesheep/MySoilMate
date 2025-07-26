@@ -57,9 +57,7 @@ export default function Home() {
     }));
   };
   
-  const handleSortChange = (sortOption: "name" | "light" | "zone") => {
-    setFilter(prev => ({ ...prev, sort: sortOption }));
-  };
+
   
   const handleOpenGardenDesigner = () => {
     if (selectedPlants.length === 0) {
@@ -161,7 +159,6 @@ export default function Home() {
               isLoading={isLoading} 
               isFetchingNextPage={isFetchingNextPage}
               hasNextPage={hasNextPage}
-              onSortChange={handleSortChange}
               onAddPlantToSelection={handleAddPlantToSelection}
               onLoadMore={loadMore}
             />
