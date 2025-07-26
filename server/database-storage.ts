@@ -77,6 +77,41 @@ export class DatabaseStorage implements IStorage {
           return filter.growZones!.some(zone => plantZonesValues.includes(zone));
         });
       }
+
+      // Bloom season filter
+      if (filter.bloomSeasons && filter.bloomSeasons.length > 0) {
+        filteredPlants = filteredPlants.filter(plant => {
+          return filter.bloomSeasons!.some(season => plant.bloomSeason.includes(season));
+        });
+      }
+
+      // Height filter
+      if (filter.heights && filter.heights.length > 0) {
+        filteredPlants = filteredPlants.filter(plant => {
+          const heightValue = plant.height.toLowerCase();
+          return filter.heights!.some(height => {
+            switch (height) {
+              case 'small':
+                return heightValue.includes('inch') || 
+                       (heightValue.includes('feet') && 
+                        (heightValue.includes('1') || heightValue.includes('2')) && 
+                        !heightValue.includes('3') && !heightValue.includes('4') && 
+                        !heightValue.includes('5') && !heightValue.includes('6'));
+              case 'medium':
+                return (heightValue.includes('feet') && 
+                        (heightValue.includes('2') || heightValue.includes('3') || heightValue.includes('4'))) ||
+                       (heightValue.includes('inch') && 
+                        (heightValue.includes('24') || heightValue.includes('36') || heightValue.includes('48')));
+              case 'large':
+                return heightValue.includes('feet') && 
+                       (heightValue.includes('4') || heightValue.includes('5') || 
+                        heightValue.includes('6') || heightValue.includes('7') || heightValue.includes('8'));
+              default:
+                return false;
+            }
+          });
+        });
+      }
       
       // Sorting
       if (filter.sort) {

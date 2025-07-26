@@ -105,6 +105,8 @@ export const plantFilterSchema = z.object({
   lightLevels: z.array(z.string()).optional(),
   waterNeeds: z.array(z.string()).optional(),
   growZones: z.array(z.string()).optional(),
+  bloomSeasons: z.array(z.string()).optional(),
+  heights: z.array(z.string()).optional(),
   sort: z.enum(['name', 'light', 'zone']).optional(),
   page: z.number().min(1).optional().default(1),
   limit: z.number().min(1).max(100).optional().default(15),

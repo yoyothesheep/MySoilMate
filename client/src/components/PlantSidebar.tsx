@@ -9,7 +9,7 @@ interface FilterOption {
 
 interface PlantSidebarProps {
   onFilterChange: (
-    filterType: 'lightLevels' | 'waterNeeds' | 'growZones', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'growZones' | 'bloomSeasons' | 'heights', 
     values: string[]
   ) => void;
   onClearFilters: () => void;
@@ -41,11 +41,26 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     { id: 'zone-9', label: 'Zone 9', value: '9' },
     { id: 'zone-10', label: 'Zone 10', value: '10' }
   ];
+
+  const bloomSeasons: FilterOption[] = [
+    { id: 'bloom-spring', label: 'Spring', value: 'Spring' },
+    { id: 'bloom-summer', label: 'Summer', value: 'Summer' },
+    { id: 'bloom-fall', label: 'Fall', value: 'Fall' },
+    { id: 'bloom-winter', label: 'Winter', value: 'Winter' }
+  ];
+
+  const heights: FilterOption[] = [
+    { id: 'height-small', label: 'Small (under 2 feet)', value: 'small' },
+    { id: 'height-medium', label: 'Medium (2-4 feet)', value: 'medium' },
+    { id: 'height-large', label: 'Large (over 4 feet)', value: 'large' }
+  ];
   
   // State for selected filters
   const [selectedLightLevels, setSelectedLightLevels] = useState<string[]>([]);
   const [selectedWaterNeeds, setSelectedWaterNeeds] = useState<string[]>([]);
   const [selectedGrowZones, setSelectedGrowZones] = useState<string[]>([]);
+  const [selectedBloomSeasons, setSelectedBloomSeasons] = useState<string[]>([]);
+  const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   
   const handleLightLevelChange = (value: string) => {
     const updatedLevels = selectedLightLevels.includes(value)
@@ -75,11 +90,31 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
     setSelectedGrowZones(updatedZones);
     onFilterChange('growZones', updatedZones);
   };
+
+  const handleBloomSeasonChange = (value: string) => {
+    const updatedSeasons = selectedBloomSeasons.includes(value)
+      ? selectedBloomSeasons.filter(season => season !== value)
+      : [...selectedBloomSeasons, value];
+    
+    setSelectedBloomSeasons(updatedSeasons);
+    onFilterChange('bloomSeasons', updatedSeasons);
+  };
+
+  const handleHeightChange = (value: string) => {
+    const updatedHeights = selectedHeights.includes(value)
+      ? selectedHeights.filter(height => height !== value)
+      : [...selectedHeights, value];
+    
+    setSelectedHeights(updatedHeights);
+    onFilterChange('heights', updatedHeights);
+  };
   
   const handleClearFilters = () => {
     setSelectedLightLevels([]);
     setSelectedWaterNeeds([]);
     setSelectedGrowZones([]);
+    setSelectedBloomSeasons([]);
+    setSelectedHeights([]);
     onClearFilters();
   };
   
@@ -171,6 +206,86 @@ export function PlantSidebar({ onFilterChange, onClearFilters }: PlantSidebarPro
           
 
           
+          {/* Bloom Season Filter */}
+          <div className="mb-6">
+            <h3 className="font-medium text-sm text-gray-700 mb-3">Bloom Season</h3>
+            <div className="space-y-2">
+              {bloomSeasons.map((season) => (
+                <div key={season.id} className="flex items-center">
+                  <input
+                    id={season.id}
+                    type="checkbox"
+                    className="filter-checkbox h-4 w-4 border-gray-300 rounded text-primary focus:ring-primary hidden"
+                    checked={selectedBloomSeasons.includes(season.value)}
+                    onChange={() => handleBloomSeasonChange(season.value)}
+                  />
+                  <label htmlFor={season.id} className="flex items-center cursor-pointer">
+                    <span 
+                      className={`h-5 w-5 border border-gray-300 rounded flex items-center justify-center mr-2 relative ${
+                        selectedBloomSeasons.includes(season.value) ? 'bg-primary border-primary' : ''
+                      }`}
+                    >
+                      <span 
+                        className={`absolute inset-0 flex items-center justify-center ${
+                          selectedBloomSeasons.includes(season.value) ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path 
+                            fillRule="evenodd" 
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                            clipRule="evenodd" 
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span className="text-sm text-gray-700">{season.label}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Height Filter */}
+          <div className="mb-6">
+            <h3 className="font-medium text-sm text-gray-700 mb-3">Plant Height</h3>
+            <div className="space-y-2">
+              {heights.map((height) => (
+                <div key={height.id} className="flex items-center">
+                  <input
+                    id={height.id}
+                    type="checkbox"
+                    className="filter-checkbox h-4 w-4 border-gray-300 rounded text-primary focus:ring-primary hidden"
+                    checked={selectedHeights.includes(height.value)}
+                    onChange={() => handleHeightChange(height.value)}
+                  />
+                  <label htmlFor={height.id} className="flex items-center cursor-pointer">
+                    <span 
+                      className={`h-5 w-5 border border-gray-300 rounded flex items-center justify-center mr-2 relative ${
+                        selectedHeights.includes(height.value) ? 'bg-primary border-primary' : ''
+                      }`}
+                    >
+                      <span 
+                        className={`absolute inset-0 flex items-center justify-center ${
+                          selectedHeights.includes(height.value) ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path 
+                            fillRule="evenodd" 
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                            clipRule="evenodd" 
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span className="text-sm text-gray-700">{height.label}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* USDA Grow Zone Filter */}
           <div className="mb-6">
             <h3 className="font-medium text-sm text-gray-700 mb-3">USDA Grow Zone</h3>
