@@ -89,28 +89,12 @@ export function PlantGrid({
       ) : plants.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {plants.map((plant) => (
-            <div key={plant.id} className="relative group">
-              <PlantCard 
-                plant={plant} 
-                onClick={() => handlePlantClick(plant)} 
-              />
-              {onAddPlantToSelection && (
-                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToGarden(plant);
-                    }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                    Add to Garden
-                  </Button>
-                </div>
-              )}
-            </div>
+            <PlantCard 
+              key={plant.id}
+              plant={plant} 
+              onClick={() => handlePlantClick(plant)}
+              onAddToGarden={onAddPlantToSelection ? handleAddToGarden : undefined}
+            />
           ))}
         </div>
       ) : (

@@ -9,9 +9,10 @@ interface PlantCardProps {
     plantBloomSeasons?: Array<{ bloomSeason: { season: string } }>;
   };
   onClick: () => void;
+  onAddToGarden?: (plant: Plant) => void;
 }
 
-export function PlantCard({ plant, onClick }: PlantCardProps) {
+export function PlantCard({ plant, onClick, onAddToGarden }: PlantCardProps) {
   // Format bloom season for display
   const formatBloomSeason = (bloomSeason: string): string => {
     return bloomSeason;
@@ -23,8 +24,18 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
     return `/api/plants/${plant.id}/image`;
   };
   
+  const handleAddToGarden = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    if (onAddToGarden) {
+      onAddToGarden(plant);
+    }
+  };
+
   return (
-    <div className="plant-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg">
+    <div 
+      className="plant-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg cursor-pointer"
+      onClick={onClick}
+    >
       <img 
         src={getImageSrc()} 
         alt={plant.name} 
@@ -64,10 +75,10 @@ export function PlantCard({ plant, onClick }: PlantCardProps) {
         </div>
         <Button
           variant="outline"
-          className="mt-4 mb-6 w-full flex items-center justify-center px-4 py-2 border border-primary text-sm font-medium rounded-md text-primary hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          onClick={onClick}
+          className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md text-green-600 hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600"
+          onClick={handleAddToGarden}
         >
-          View Details
+          + Add to Garden
         </Button>
       </div>
     </div>
