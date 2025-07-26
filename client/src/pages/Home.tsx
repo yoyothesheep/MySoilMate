@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PlantHeader } from "@/components/PlantHeader";
+
 import { PlantSidebar } from "@/components/PlantSidebar";
 import { PlantGrid } from "@/components/PlantGrid";
 import { PlantFooter } from "@/components/PlantFooter";
@@ -98,8 +98,6 @@ export default function Home() {
   
   return (
     <div className="min-h-screen flex flex-col bg-neutral-light">
-      <PlantHeader />
-      
       {/* Hero Header Section */}
       <section className="bg-gradient-to-br from-green-400 via-yellow-300 to-pink-300 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
