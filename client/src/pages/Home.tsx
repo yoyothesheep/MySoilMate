@@ -1,4 +1,5 @@
 import { useState } from "react";
+import bannerImage from "@assets/assets_task_01k255cg7zf1sbf84p3kf7nzhe_1754667700_img_1_1754667891304.webp";
 
 import { PlantSidebar } from "@/components/PlantSidebar";
 import { PlantGrid } from "@/components/PlantGrid";
@@ -99,12 +100,16 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-neutral-light">
       {/* Hero Header Section */}
-      <section className="bg-gradient-to-br from-green-400 via-yellow-300 to-pink-300 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+      <section 
+        className="relative py-16 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${bannerImage})` }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div className="relative max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-2xl">
             Garden Designer
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
             Discover outdoor plants and design your perfect garden layout with our interactive garden visualizer.
           </p>
         </div>
