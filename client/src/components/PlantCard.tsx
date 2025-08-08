@@ -18,10 +18,9 @@ export function PlantCard({ plant, onClick, onAddToGarden }: PlantCardProps) {
     return bloomSeason;
   };
 
-  // Get image source - use API endpoint first, fallback to URL
+  // Get image source - use image_url from database
   const getImageSrc = () => {
-    // Always try the API endpoint first (this will serve database images)
-    return `/api/plants/${plant.id}/image`;
+    return plant.imageUrl || 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
   };
   
   const handleAddToGarden = (e: React.MouseEvent) => {
@@ -41,13 +40,9 @@ export function PlantCard({ plant, onClick, onAddToGarden }: PlantCardProps) {
         alt={plant.name} 
         className="h-56 w-full object-cover"
         onError={(e) => {
-          // If API endpoint fails, try the original imageUrl, then fallback
+          // Fallback to placeholder if image fails to load
           const img = e.target as HTMLImageElement;
-          if (img.src.includes('/api/plants/') && plant.imageUrl) {
-            img.src = plant.imageUrl;
-          } else {
-            img.src = 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
-          }
+          img.src = 'https://via.placeholder.com/400x300?text=Plant+Image+Unavailable';
         }}
       />
       <div className="p-4">
