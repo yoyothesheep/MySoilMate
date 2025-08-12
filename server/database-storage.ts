@@ -2,8 +2,9 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant, 
   type PlantFilter, type PlantWithZones,
-  zones, plantZones, bloomSeasons, plantBloomSeasons,
-  type PaginatedPlantsResponse, type InsertBloomSeason, type InsertPlantBloomSeason
+  zones, plantZones, lightLevels, plantLightLevels, bloomSeasons, plantBloomSeasons,
+  type PaginatedPlantsResponse, type InsertBloomSeason, type InsertPlantBloomSeason,
+  type LightLevel, type InsertLightLevel
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and, inArray } from "drizzle-orm";
@@ -31,12 +32,17 @@ export class DatabaseStorage implements IStorage {
 
   // Plant methods
   async getPlants(filter?: PlantFilter): Promise<PaginatedPlantsResponse> {
-    // Get plants with their grow zones and bloom seasons using relations
+    // Get plants with their grow zones, light levels, and bloom seasons using relations
     const plantsWithZones = await db.query.plants.findMany({
       with: {
         plantZones: {
           with: {
             zone: true
+          }
+        },
+        plantLightLevels: {
+          with: {
+            lightLevel: true
           }
         },
         plantBloomSeasons: {
@@ -62,9 +68,10 @@ export class DatabaseStorage implements IStorage {
       
       // Light levels filter
       if (filter.lightLevels && filter.lightLevels.length > 0) {
-        filteredPlants = filteredPlants.filter(plant => 
-          filter.lightLevels!.includes(plant.lightLevel)
-        );
+        filteredPlants = filteredPlants.filter(plant => {
+          const plantLightLevels = plant.plantLightLevels?.map(pll => pll.lightLevel.level) || [];
+          return filter.lightLevels!.some(level => plantLightLevels.includes(level));
+        });
       }
       
       // Water needs filter
@@ -113,7 +120,13 @@ export class DatabaseStorage implements IStorage {
               'Mostly Sun': 4, 
               'Full Sun': 5 
             };
-            filteredPlants.sort((a, b) => lightOrder[a.lightLevel as keyof typeof lightOrder] - lightOrder[b.lightLevel as keyof typeof lightOrder]);
+            filteredPlants.sort((a, b) => {
+              const aLightLevels = a.plantLightLevels?.map(pll => pll.lightLevel.level) || [];
+              const bLightLevels = b.plantLightLevels?.map(pll => pll.lightLevel.level) || [];
+              const aMaxLight = Math.max(...aLightLevels.map(level => lightOrder[level as keyof typeof lightOrder] || 0));
+              const bMaxLight = Math.max(...bLightLevels.map(level => lightOrder[level as keyof typeof lightOrder] || 0));
+              return aMaxLight - bMaxLight;
+            });
             break;
           case 'zone':
             filteredPlants.sort((a, b) => {
@@ -154,6 +167,11 @@ export class DatabaseStorage implements IStorage {
         plantZones: {
           with: {
             zone: true
+          }
+        },
+        plantLightLevels: {
+          with: {
+            lightLevel: true
           }
         },
         plantBloomSeasons: {

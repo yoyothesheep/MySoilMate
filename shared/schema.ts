@@ -27,7 +27,7 @@ export const plants = pgTable("plants", {
   imageUrl: text("image_url"), // Keep for backward compatibility, but make optional
   imageData: text("image_data"), // Base64 encoded image data
   imageMimeType: text("image_mime_type"), // MIME type of the stored image
-  lightLevel: text("light_level").notNull(), // 'low', 'medium', 'bright'
+
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
   bloomTime: text("bloom_time").notNull(), // Descriptive text about bloom timing
   height: text("height").notNull(), // Plant height at maturity
@@ -45,6 +45,13 @@ export const zones = pgTable("zones", {
   zone: text("zone").notNull().unique(), // Individual zone like "4a", "5b", "6a", etc.
 });
 
+// Light levels reference table
+export const lightLevels = pgTable("light_levels", {
+  id: serial("id").primaryKey(),
+  level: text("level").notNull().unique(), // e.g., "Full Sun", "Mostly Sun", etc.
+  description: text("description"), // Optional description of the light level
+});
+
 // Bloom seasons reference table
 export const bloomSeasons = pgTable("bloom_seasons", {
   id: serial("id").primaryKey(),
@@ -59,6 +66,13 @@ export const plantZones = pgTable("plant_zones", {
   zoneId: integer("zone_id").notNull().references(() => zones.id, { onDelete: "cascade" }),
 });
 
+// Plant light levels junction table - many-to-many relationship
+export const plantLightLevels = pgTable("plant_light_levels", {
+  id: serial("id").primaryKey(),
+  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: "cascade" }),
+  lightLevelId: integer("light_level_id").notNull().references(() => lightLevels.id, { onDelete: "cascade" }),
+});
+
 // Plant bloom seasons junction table - many-to-many relationship
 export const plantBloomSeasons = pgTable("plant_bloom_seasons", {
   id: serial("id").primaryKey(),
@@ -69,11 +83,16 @@ export const plantBloomSeasons = pgTable("plant_bloom_seasons", {
 // Relations
 export const plantsRelations = relations(plants, ({ many }) => ({
   plantZones: many(plantZones),
+  plantLightLevels: many(plantLightLevels),
   plantBloomSeasons: many(plantBloomSeasons),
 }));
 
 export const zonesRelations = relations(zones, ({ many }) => ({
   plantZones: many(plantZones),
+}));
+
+export const lightLevelsRelations = relations(lightLevels, ({ many }) => ({
+  plantLightLevels: many(plantLightLevels),
 }));
 
 export const bloomSeasonsRelations = relations(bloomSeasons, ({ many }) => ({
@@ -88,6 +107,17 @@ export const plantZonesRelations = relations(plantZones, ({ one }) => ({
   zone: one(zones, {
     fields: [plantZones.zoneId],
     references: [zones.id],
+  }),
+}));
+
+export const plantLightLevelsRelations = relations(plantLightLevels, ({ one }) => ({
+  plant: one(plants, {
+    fields: [plantLightLevels.plantId],
+    references: [plants.id],
+  }),
+  lightLevel: one(lightLevels, {
+    fields: [plantLightLevels.lightLevelId],
+    references: [lightLevels.id],
   }),
 }));
 
@@ -110,11 +140,19 @@ export const insertZoneSchema = createInsertSchema(zones).omit({
   id: true,
 });
 
+export const insertLightLevelSchema = createInsertSchema(lightLevels).omit({
+  id: true,
+});
+
 export const insertBloomSeasonSchema = createInsertSchema(bloomSeasons).omit({
   id: true,
 });
 
 export const insertPlantZoneSchema = createInsertSchema(plantZones).omit({
+  id: true,
+});
+
+export const insertPlantLightLevelSchema = createInsertSchema(plantLightLevels).omit({
   id: true,
 });
 
@@ -126,20 +164,25 @@ export type InsertPlant = z.infer<typeof insertPlantSchema>;
 export type Plant = typeof plants.$inferSelect;
 export type InsertZone = z.infer<typeof insertZoneSchema>;
 export type Zone = typeof zones.$inferSelect;
+export type InsertLightLevel = z.infer<typeof insertLightLevelSchema>;
+export type LightLevel = typeof lightLevels.$inferSelect;
 export type InsertBloomSeason = z.infer<typeof insertBloomSeasonSchema>;
 export type BloomSeason = typeof bloomSeasons.$inferSelect;
 export type InsertPlantZone = z.infer<typeof insertPlantZoneSchema>;
 export type PlantZone = typeof plantZones.$inferSelect;
+export type InsertPlantLightLevel = z.infer<typeof insertPlantLightLevelSchema>;
+export type PlantLightLevel = typeof plantLightLevels.$inferSelect;
 export type InsertPlantBloomSeason = z.infer<typeof insertPlantBloomSeasonSchema>;
 export type PlantBloomSeason = typeof plantBloomSeasons.$inferSelect;
 
-export type LightLevel = 'Full Sun' | 'Mostly Sun' | 'Half Sun / Half Shade' | 'Mostly Shade' | 'Full Shade';
+export type LightLevelValue = 'Full Sun' | 'Mostly Sun' | 'Half Sun / Half Shade' | 'Mostly Shade' | 'Full Shade';
 export type WaterNeeds = 'low' | 'medium' | 'high';
 export type ZoneNumber = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12' | '13';
 
-// Type for plant with grow zones and bloom seasons included
+// Type for plant with grow zones, light levels, and bloom seasons included
 export type PlantWithZones = Plant & {
   plantZones: (PlantZone & { zone: Zone })[];
+  plantLightLevels: (PlantLightLevel & { lightLevel: LightLevel })[];
   plantBloomSeasons: (PlantBloomSeason & { bloomSeason: BloomSeason })[];
 };
 

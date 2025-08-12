@@ -6,6 +6,7 @@ import { Sprout, Flower } from "lucide-react";
 interface PlantCardProps {
   plant: Plant & { 
     plantZones?: Array<{ zone: { zone: string } }>;
+    plantLightLevels?: Array<{ lightLevel: { level: string } }>;
     plantBloomSeasons?: Array<{ bloomSeason: { season: string } }>;
   };
   onClick: () => void;
@@ -55,7 +56,9 @@ export function PlantCard({ plant, onClick, onAddToGarden }: PlantCardProps) {
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center">
             <SunIcon className="text-yellow-500 mr-1 h-4 w-4" />
-            <span>{plant.lightLevel}</span>
+            <span>
+              {plant.plantLightLevels?.map(pll => pll.lightLevel.level).join(', ') || 'Light info unavailable'}
+            </span>
           </div>
           <div className="flex items-center">
             <Flower className="text-pink-500 mr-1 h-4 w-4" />
