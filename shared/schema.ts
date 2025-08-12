@@ -23,16 +23,16 @@ export const plants = pgTable("plants", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   scientificName: text("scientific_name").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   imageUrl: text("image_url"), // Keep for backward compatibility, but make optional
   imageData: text("image_data"), // Base64 encoded image data
   imageMimeType: text("image_mime_type"), // MIME type of the stored image
 
-  waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
-  bloomTime: text("bloom_time").notNull(), // Descriptive text about bloom timing
-  height: text("height").notNull(), // Plant height at maturity
+  waterNeeds: text("water_needs"), // 'low', 'medium', 'high'
+  bloomTime: text("bloom_time"), // Descriptive text about bloom timing
+  height: text("height"), // Plant height at maturity
   heightText: text("height_text"), // Height category: 'Short', 'Medium', 'Tall'
-  width: text("width").notNull(), // Plant width/spread at maturity
+  width: text("width"), // Plant width/spread at maturity
   temperature: text("temperature"),
   humidity: text("humidity"),
   careInstructions: text("care_instructions"),
