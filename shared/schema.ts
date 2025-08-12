@@ -31,6 +31,7 @@ export const plants = pgTable("plants", {
   waterNeeds: text("water_needs").notNull(), // 'low', 'medium', 'high'
   bloomTime: text("bloom_time").notNull(), // Descriptive text about bloom timing
   height: text("height").notNull(), // Plant height at maturity
+  heightText: text("height_text"), // Height category: 'Short', 'Medium', 'Tall'
   width: text("width").notNull(), // Plant width/spread at maturity
   temperature: text("temperature"),
   humidity: text("humidity"),
@@ -148,7 +149,7 @@ export const plantFilterSchema = z.object({
   waterNeeds: z.array(z.string()).optional(),
   growZones: z.array(z.string()).optional(),
   bloomSeasons: z.array(z.string()).optional(),
-  heights: z.array(z.string()).optional(),
+  heightTexts: z.array(z.string()).optional(),
   sort: z.enum(['name', 'light', 'zone']).optional(),
   page: z.number().min(1).optional().default(1),
   limit: z.number().min(1).max(100).optional().default(15),

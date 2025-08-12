@@ -10,7 +10,7 @@ interface FilterOption {
 
 interface PlantSidebarProps {
   onFilterChange: (
-    filterType: 'lightLevels' | 'waterNeeds' | 'growZones' | 'bloomSeasons' | 'heights', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'growZones' | 'bloomSeasons' | 'heightTexts', 
     values: string[]
   ) => void;
   onClearFilters: () => void;
@@ -59,9 +59,9 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
   ];
 
   const heights: FilterOption[] = [
-    { id: 'height-small', label: 'Small (under 2 feet)', value: 'small' },
-    { id: 'height-medium', label: 'Medium (2-4 feet)', value: 'medium' },
-    { id: 'height-large', label: 'Large (over 4 feet)', value: 'large' }
+    { id: 'height-short', label: 'Short (up to 18")', value: 'Short' },
+    { id: 'height-medium', label: 'Medium (18"-36")', value: 'Medium' },
+    { id: 'height-tall', label: 'Tall (36"+)', value: 'Tall' }
   ];
   
   // State for selected filters
@@ -69,7 +69,7 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
   const [selectedWaterNeeds, setSelectedWaterNeeds] = useState<string[]>([]);
   const [selectedGrowZones, setSelectedGrowZones] = useState<string[]>([]);
   const [selectedBloomSeasons, setSelectedBloomSeasons] = useState<string[]>([]);
-  const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
+  const [selectedHeightTexts, setSelectedHeightTexts] = useState<string[]>([]);
   
   const handleLightLevelChange = (value: string) => {
     const updatedLevels = selectedLightLevels.includes(value)
@@ -109,13 +109,13 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
     onFilterChange('bloomSeasons', updatedSeasons);
   };
 
-  const handleHeightChange = (value: string) => {
-    const updatedHeights = selectedHeights.includes(value)
-      ? selectedHeights.filter(height => height !== value)
-      : [...selectedHeights, value];
+  const handleHeightTextChange = (value: string) => {
+    const updatedHeightTexts = selectedHeightTexts.includes(value)
+      ? selectedHeightTexts.filter(height => height !== value)
+      : [...selectedHeightTexts, value];
     
-    setSelectedHeights(updatedHeights);
-    onFilterChange('heights', updatedHeights);
+    setSelectedHeightTexts(updatedHeightTexts);
+    onFilterChange('heightTexts', updatedHeightTexts);
   };
   
   const handleClearFilters = () => {
@@ -123,7 +123,7 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
     setSelectedWaterNeeds([]);
     setSelectedGrowZones([]);
     setSelectedBloomSeasons([]);
-    setSelectedHeights([]);
+    setSelectedHeightTexts([]);
     onClearFilters();
   };
   
@@ -294,18 +294,18 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
                     id={height.id}
                     type="checkbox"
                     className="filter-checkbox h-4 w-4 border-gray-300 rounded text-primary focus:ring-primary hidden"
-                    checked={selectedHeights.includes(height.value)}
-                    onChange={() => handleHeightChange(height.value)}
+                    checked={selectedHeightTexts.includes(height.value)}
+                    onChange={() => handleHeightTextChange(height.value)}
                   />
                   <label htmlFor={height.id} className="flex items-center cursor-pointer">
                     <span 
                       className={`h-5 w-5 border border-gray-300 rounded flex items-center justify-center mr-2 relative ${
-                        selectedHeights.includes(height.value) ? 'bg-primary border-primary' : ''
+                        selectedHeightTexts.includes(height.value) ? 'bg-primary border-primary' : ''
                       }`}
                     >
                       <span 
                         className={`absolute inset-0 flex items-center justify-center ${
-                          selectedHeights.includes(height.value) ? 'opacity-100' : 'opacity-0'
+                          selectedHeightTexts.includes(height.value) ? 'opacity-100' : 'opacity-0'
                         }`}
                       >
                         <svg className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">

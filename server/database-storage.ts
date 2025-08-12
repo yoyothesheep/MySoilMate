@@ -92,32 +92,11 @@ export class DatabaseStorage implements IStorage {
         });
       }
 
-      // Height filter
-      if (filter.heights && filter.heights.length > 0) {
-        filteredPlants = filteredPlants.filter(plant => {
-          const heightValue = plant.height.toLowerCase();
-          return filter.heights!.some(height => {
-            switch (height) {
-              case 'small':
-                return heightValue.includes('inch') || 
-                       (heightValue.includes('feet') && 
-                        (heightValue.includes('1') || heightValue.includes('2')) && 
-                        !heightValue.includes('3') && !heightValue.includes('4') && 
-                        !heightValue.includes('5') && !heightValue.includes('6'));
-              case 'medium':
-                return (heightValue.includes('feet') && 
-                        (heightValue.includes('2') || heightValue.includes('3') || heightValue.includes('4'))) ||
-                       (heightValue.includes('inch') && 
-                        (heightValue.includes('24') || heightValue.includes('36') || heightValue.includes('48')));
-              case 'large':
-                return heightValue.includes('feet') && 
-                       (heightValue.includes('4') || heightValue.includes('5') || 
-                        heightValue.includes('6') || heightValue.includes('7') || heightValue.includes('8'));
-              default:
-                return false;
-            }
-          });
-        });
+      // Height text filter
+      if (filter.heightTexts && filter.heightTexts.length > 0) {
+        filteredPlants = filteredPlants.filter(plant => 
+          plant.heightText && filter.heightTexts!.includes(plant.heightText)
+        );
       }
       
       // Sorting

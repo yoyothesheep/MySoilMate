@@ -17,7 +17,7 @@ export default function Home() {
     waterNeeds: [],
     growZones: [],
     bloomSeasons: [],
-    heights: [],
+    heightTexts: [],
     sort: "name",
     page: 1,
     limit: 15
@@ -41,7 +41,7 @@ export default function Home() {
   };
   
   const handleFilterChange = (
-    filterType: 'lightLevels' | 'waterNeeds' | 'growZones' | 'bloomSeasons' | 'heights', 
+    filterType: 'lightLevels' | 'waterNeeds' | 'growZones' | 'bloomSeasons' | 'heightTexts', 
     values: string[]
   ) => {
     setFilter(prev => ({ ...prev, [filterType]: values }));
@@ -54,7 +54,7 @@ export default function Home() {
       waterNeeds: [],
       growZones: [],
       bloomSeasons: [],
-      heights: []
+      heightTexts: []
     }));
   };
   

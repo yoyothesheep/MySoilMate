@@ -30,7 +30,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         waterNeeds: req.query.waterNeeds ? (req.query.waterNeeds as string).split(',') : undefined,
         growZones: req.query.growZones ? (req.query.growZones as string).split(',') : undefined,
         bloomSeasons: req.query.bloomSeasons ? (req.query.bloomSeasons as string).split(',') : undefined,
-        heights: req.query.heights ? (req.query.heights as string).split(',') : undefined,
+        heightTexts: req.query.heightTexts ? (req.query.heightTexts as string).split(',') : undefined,
         sort: req.query.sort as string,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
