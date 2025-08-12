@@ -94,6 +94,12 @@ Preferred communication style: Simple, everyday language.
 - Migrations managed through Drizzle Kit
 - Database seeding with garden plant data from reputable sources (High Line, Proven Winners, Bluestone Perennials)
 
+### Recent Changes (August 2025)
+
+**Light Levels Refactored to Relational Structure**: Migrated from single `lightLevel` column to relational tables (`light_levels` and `plant_light_levels` junction table) to support plants with multiple light requirements. This allows plants to have combinations like "Full Sun, Mostly Sun" for maximum flexibility.
+
+**Enhanced Plant Detail Modal**: Updated to dynamically display all plant information from database including photo, description, height/width dimensions, bloom seasons, hardiness zones, and multiple light level requirements.
+
 ### Architecture Decisions
 
 **Monorepo Structure**: Chose to keep frontend (`client/`), backend (`server/`), and shared code (`shared/`) in a single repository for easier development and type sharing.
@@ -105,3 +111,5 @@ Preferred communication style: Simple, everyday language.
 **shadcn/ui + Tailwind**: Provides a comprehensive, customizable component system with excellent developer experience and consistent design patterns.
 
 **React Query**: Handles complex server state management, caching, and synchronization with minimal boilerplate compared to Redux or other state management solutions.
+
+**Relational Data Design**: All complex plant attributes (zones, light levels, bloom seasons) use proper many-to-many relationships through junction tables for data integrity and flexibility.

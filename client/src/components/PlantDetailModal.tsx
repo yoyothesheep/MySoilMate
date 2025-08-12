@@ -10,6 +10,8 @@ import { PlantImageUpload } from "./PlantImageUpload";
 interface PlantDetailModalProps {
   plant: Plant & { 
     plantZones?: Array<{ zone: { zone: string } }>;
+    plantLightLevels?: Array<{ lightLevel: { level: string } }>;
+    plantBloomSeasons?: Array<{ bloomSeason: { season: string } }>;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -145,38 +147,78 @@ export function PlantDetailModal({ plant, isOpen, onClose, onAddToGarden }: Plan
                 <p className="text-gray-700 mb-4">{plant.description}</p>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-3 rounded-lg">
+              {/* Plant Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                
+                {/* Light Levels */}
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center text-gray-700 font-medium mb-2">
                     <SunIcon className="text-yellow-500 mr-2 h-5 w-5" />
-                    Light
+                    Light Requirements
                   </div>
                   <p className="text-sm text-gray-600">
-                    {plant.lightLevel === 'low' ? 'Low light. Can tolerate shady conditions.' :
-                     plant.lightLevel === 'medium' ? 'Medium to bright indirect light. Avoid direct sunlight.' :
-                     'Bright indirect light. Some direct morning sun is beneficial.'}
+                    {plant.plantLightLevels?.length ? 
+                      plant.plantLightLevels.map(pll => pll.lightLevel.level).join(', ') : 
+                      'Light information not available'
+                    }
                   </p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
+                {/* Water Needs */}
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center text-gray-700 font-medium mb-2">
                     <DropletIcon className="text-blue-500 mr-2 h-5 w-5" />
-                    Water
+                    Water Needs
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {plant.waterNeeds === 'low' ? 'Water when the soil is completely dry. Drought tolerant.' :
-                     plant.waterNeeds === 'medium' ? 'Water when the top 1-2 inches of soil are dry. Reduce watering in winter.' :
-                     'Keep soil consistently moist but not soggy. Water when the top soil feels slightly dry.'}
+                  <p className="text-sm text-gray-600 capitalize">
+                    {plant.waterNeeds || 'Water information not available'}
                   </p>
                 </div>
                 
-                <div className="bg-gray-50 p-3 rounded-lg">
+                {/* Plant Size */}
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center text-gray-700 font-medium mb-2">
-                    <TemperatureIcon className="text-red-500 mr-2 h-5 w-5" />
-                    Hardiness Zone
+                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m3 0V6a2 2 0 01-2 2H6a2 2 0 01-2-2V4m3 0h8M9 12v6m6-6v6" />
+                    </svg>
+                    Plant Size
                   </div>
-                  <p className="text-sm text-gray-600">{plant.temperature || 'Prefers temperatures between 65-80°F (18-27°C). Avoid cold drafts and sudden temperature changes.'}</p>
+                  <p className="text-sm text-gray-600">
+                    Height: {plant.height || 'Not specified'}<br/>
+                    Width: {plant.width || 'Not specified'}
+                  </p>
                 </div>
+                
+                {/* Bloom Seasons */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center text-gray-700 font-medium mb-2">
+                    <svg className="w-5 h-5 mr-2 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    Bloom Seasons
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {plant.plantBloomSeasons?.length ? 
+                      plant.plantBloomSeasons.map(pbs => pbs.bloomSeason.season).join(', ') : 
+                      'Bloom season not specified'
+                    }
+                  </p>
+                </div>
+                
+                {/* Hardiness Zones */}
+                <div className="bg-gray-50 p-4 rounded-lg col-span-1 md:col-span-2">
+                  <div className="flex items-center text-gray-700 font-medium mb-2">
+                    <MapPin className="text-green-600 mr-2 h-5 w-5" />
+                    Hardiness Zones
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {plant.plantZones?.length ? 
+                      `USDA Zones ${plant.plantZones.map(pz => pz.zone.zone).join(', ')}` : 
+                      'Zone information not available'
+                    }
+                  </p>
+                </div>
+                
               </div>
               
               {careInstructions.length > 0 && (
