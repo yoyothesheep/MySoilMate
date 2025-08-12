@@ -55,7 +55,7 @@ export function PlantCard({ plant, onClick, onAddToGarden }: PlantCardProps) {
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center">
             <SunIcon className="text-yellow-500 mr-1 h-4 w-4" />
-            <span>{plant.lightLevel.charAt(0).toUpperCase() + plant.lightLevel.slice(1)} Light</span>
+            <span>{plant.lightLevel}</span>
           </div>
           <div className="flex items-center">
             <Flower className="text-pink-500 mr-1 h-4 w-4" />
