@@ -133,7 +133,7 @@ export type PlantZone = typeof plantZones.$inferSelect;
 export type InsertPlantBloomSeason = z.infer<typeof insertPlantBloomSeasonSchema>;
 export type PlantBloomSeason = typeof plantBloomSeasons.$inferSelect;
 
-export type LightLevel = 'low' | 'medium' | 'bright';
+export type LightLevel = 'Full Sun' | 'Mostly Sun' | 'Half Sun / Half Shade' | 'Mostly Shade' | 'Full Shade';
 export type WaterNeeds = 'low' | 'medium' | 'high';
 export type ZoneNumber = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12' | '13';
 

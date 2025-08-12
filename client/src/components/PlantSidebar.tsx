@@ -27,9 +27,11 @@ export function PlantSidebar({ onFilterChange, onClearFilters, onSearch }: Plant
   };
   // Filter option definitions
   const lightLevels: FilterOption[] = [
-    { id: 'light-low', label: 'Low Light', value: 'low' },
-    { id: 'light-medium', label: 'Medium Light', value: 'medium' },
-    { id: 'light-bright', label: 'Bright Light', value: 'bright' }
+    { id: 'light-full-sun', label: 'Full Sun', value: 'Full Sun' },
+    { id: 'light-mostly-sun', label: 'Mostly Sun', value: 'Mostly Sun' },
+    { id: 'light-half-shade', label: 'Half Sun / Half Shade', value: 'Half Sun / Half Shade' },
+    { id: 'light-mostly-shade', label: 'Mostly Shade', value: 'Mostly Shade' },
+    { id: 'light-full-shade', label: 'Full Shade', value: 'Full Shade' }
   ];
   
   const waterNeeds: FilterOption[] = [

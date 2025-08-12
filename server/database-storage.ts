@@ -106,7 +106,13 @@ export class DatabaseStorage implements IStorage {
             filteredPlants.sort((a, b) => a.name.localeCompare(b.name));
             break;
           case 'light':
-            const lightOrder = { 'low': 1, 'medium': 2, 'bright': 3 };
+            const lightOrder = { 
+              'Full Shade': 1, 
+              'Mostly Shade': 2, 
+              'Half Sun / Half Shade': 3, 
+              'Mostly Sun': 4, 
+              'Full Sun': 5 
+            };
             filteredPlants.sort((a, b) => lightOrder[a.lightLevel as keyof typeof lightOrder] - lightOrder[b.lightLevel as keyof typeof lightOrder]);
             break;
           case 'zone':
